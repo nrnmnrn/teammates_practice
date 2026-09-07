@@ -4,12 +4,13 @@
 
 ## 現在先做什麼
 
-1. 從 [賽前待辦清單](TODO.md)挑選一項可執行的工作，完成後留下結果或卡點。
-2. 全員先讀 [比賽資訊](docs/competition/README.md)，確認哪些內容已證實、哪些仍待主辦方回覆。
-3. 閱讀 [得獎團隊研究](docs/research/sea-openai-winning-patterns.md)，把值得借鏡的做法轉成可驗收的行動。
-4. 依 [Vibe Coding 操作手冊](docs/playbook/README.md)完成安裝與練習。
-5. 依 [賽前時程](docs/operations/schedule.md)與[團隊準備狀態](docs/operations/team-readiness.md)完成三次會議及 9/11 全流程演練。
-6. 題目獲得主辦方確認後，再完成 [產品規格](docs/product/README.md)與 [實作交接包](build-handoff/README.md)。
+1. 全員先讀 [比賽資訊](docs/competition/README.md)，確認哪些內容已證實、哪些仍待主辦方回覆。
+2. 閱讀 [得獎團隊研究](docs/research/sea-openai-winning-patterns.md)，把值得借鏡的做法轉成可驗收的行動。
+3. 依 [Vibe Coding 操作手冊](docs/playbook/README.md)完成安裝與練習。
+4. 依 [賽前時程](docs/operations/schedule.md)與[團隊準備狀態](docs/operations/team-readiness.md)完成三次會議及 9/11 全流程演練。
+5. 題目獲得主辦方確認後，再完成 [產品規格](docs/product/README.md)與 [實作交接包](build-handoff/README.md)。
+
+Repo owner 可從 [Owner backlog](TODO.md)管理尚待補齊的文件與研究；它不取代團隊的賽前操作安排。
 
 ## Repo 分工
 
@@ -25,6 +26,7 @@
 | [`docs/competition/`](docs/competition/README.md) | 規則、時程、資源及待確認事項 | 初版 |
 | [`docs/research/`](docs/research/sea-openai-winning-patterns.md) | 歷屆案例與可轉用策略 | 初版 |
 | [`docs/playbook/`](docs/playbook/README.md) | 新手 Vibe Coding 手冊 | 初版 |
+| [`TODO.md`](TODO.md) | owner 的文件與研究待辦 | 進行中 |
 | [`docs/operations/`](docs/operations/schedule.md) | 會議及演練安排 | 初版 |
 | [`docs/product/`](docs/product/README.md) | 產品需求與設計 | 等待主辦方回覆 |
 | [`build-handoff/`](build-handoff/README.md) | 比賽實作 repo 的最小輸入 | 模板 |

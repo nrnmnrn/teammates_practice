@@ -19,7 +19,9 @@ Issue → branch → 先寫測試 → Codex 實作 → 執行檢查
 2. [賽前安裝與檢查](setup.md)
 3. [一個任務的標準流程](workflow.md)
 4. [故障與降級處理](troubleshooting.md)
-5. 在獨立練習 repo 完成一次完整流程
+5. [Skills 情境對照表](skill-routing.md)
+6. [Codex 實務經驗](codex-practices.md)
+7. 在獨立練習 repo 完成一次完整流程
 
 ## 團隊硬規則
 
@@ -45,4 +47,3 @@ Issue → branch → 先寫測試 → Codex 實作 → 執行檢查
 | 驗收 | `code-review`、驗證相關 skill | 測試結果、diff 檢查與 review |
 
 不要因為「有很多 skills」就全部使用。每個 skill 都會增加流程與 context；只在它負責的階段呼叫它。
-
