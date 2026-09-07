@@ -1,0 +1,4 @@
+interface:
+  display_name: "Owner Playbook Contribution"
+  short_description: "驗證並寫入 Codex 經驗與 skills 指引"
+  default_prompt: "Use $owner-playbook-contribution to verify and add my playbook guidance."
