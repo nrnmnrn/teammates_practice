@@ -2,6 +2,7 @@
  - 將 docs/playbook/files_for_teamates/ 內我調整好的 AGENTS.md 複製到 ~/.codex/AGENTS.md (全域 AGENTS.md)；task-closeout 複製到 ~/.codex/skills/task-closeout 底下
  - 安裝各個開發用的 skills，如caveman, matt pocock skills, context mode, context7
  - 確定自己的 skills 或 plugins 沒有太多此競賽用不到導致浪費 context window 的問題
+ - 安裝 uv 後，在 uv 內安裝全域的 ruff, pytest
 
 
 # 使用 codex cli 而不是 chatgpt desktop ui
