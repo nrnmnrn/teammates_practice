@@ -9,3 +9,4 @@
 | Sea × OpenAI 新加坡站（正式名稱與年份待核對） | 已整理；部分得獎案例仍待補主辦方或作品原始來源。 | [研究筆記](2026-sea-openai-singapore.md) |
 | Google Gemini API Developer Competition 2024（線上） | 已整理；有官方得獎公告、官方作品頁與作者公開復盤。 | [研究筆記](2024-google-gemini-api-developer-competition-online.md) |
 | ElevenLabs × a16z Worldwide Hackathon 2025（線上組） | 已整理；有官方得獎公告、作品提交頁與團隊公開復盤。 | [研究筆記](2025-elevenlabs-a16z-worldwide-hackathon-online.md) |
+| World’s Largest Hackathon presented by Bolt 2025（線上） | 已整理；有官方名次、作品提交頁／公開 demo 與作者 AI-assisted 開發復盤。 | [研究筆記](2025-bolt-worlds-largest-hackathon-keyhaven.md) |
