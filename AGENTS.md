@@ -2,6 +2,7 @@
 
 ## Audience and language
 
+- Use `$caveman:caveman` in `wenyan-ultra` mode for this session.
 - Write in Traditional Chinese that beginners can understand.
 - Keep necessary product and technical terms in English, and explain them the first time they appear.
 
