@@ -24,7 +24,7 @@ Repo owner 可從 [Owner backlog](TODO.md)管理尚待補齊的文件與研究�
 |---|---|---|
 | [`CONTEXT.md`](CONTEXT.md) | 團隊共用名詞 | 可使用 |
 | [`docs/competition/`](docs/competition/README.md) | 規則、時程、資源及待確認事項 | 初版 |
-| [`docs/research/`](docs/research/sea-openai-winning-patterns.md) | 歷屆案例與可轉用策略 | 初版 |
+| [`docs/research/`](docs/research/2026-09-08-scheduler-ui-tools.md) | 歷屆案例、工具研究與可轉用策略 | 初版 |
 | [`docs/playbook/`](docs/playbook/README.md) | 新手 Vibe Coding 手冊 | 初版 |
 | [`TODO.md`](TODO.md) | owner 的文件與研究待辦 | 進行中 |
 | [`docs/operations/`](docs/operations/schedule.md) | 會議及演練安排 | 初版 |
