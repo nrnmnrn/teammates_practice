@@ -17,3 +17,4 @@
 | --- | --- | --- |
 | 得獎隊伍的 MVP 與 Demo 範圍收斂 | 完成；三個已驗證案例、兩項未採納跨案例候選。 | [主題摘要](topics/2026-09-winner-mvp-demo-scope.md) |
 | 台灣站評審公開訊號 | 完成但證據受限；三位評審案例、三項未採納研究候選。 | [主題摘要](topics/2026-09-taiwan-judge-public-signals.md) |
+| 有限時間內的分工、收斂與 Demo Pitch | 完成；三個已驗證案例、兩項未採納跨案例候選。 | [主題摘要](topics/2026-09-team-flow-demo-pitch.md) |
