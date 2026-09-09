@@ -1,6 +1,6 @@
 # 2025 World’s Largest Hackathon presented by Bolt：KeyHaven（線上）
 
-研究日期：2026-09-08
+研究日期：2026-09-09
 資訊分類：賽事、名次與作品頁面標記為「已確認資訊」；作者的技術過程、AI 使用與困難為作者本人第一手公開紀錄；其餘均明列為「研究推論」或「待確認問題」。本案例僅是參考性先例，不是 Sea × OpenAI 台灣站規則、產品需求或團隊決定。
 
 ## 研究問題
@@ -21,6 +21,12 @@
 ## 狀態
 
 **案例觀察**。此為單一外部案例，尚未構成跨案例候選、團隊已採納做法或 Sea × OpenAI 台灣站的任何規則。
+
+## 研究問題與覆核結論
+
+本案只回答：KeyHaven 是否有可回查證據顯示，得獎者如何收斂 MVP（最小可用作品）或 demo，使其核心價值清楚？
+
+**覆核結論**：部分有。作者將「開發者／小團隊管理 API key」界定為自身痛點，並以儲存、rotation、monitoring 作作品的單一問題敘述；作者另把「不中斷服務的 automated key rotation」列為主要技術難題。公開 Devpost 提交提供影片、三個產品畫面與 live URL，符合本場要求的可審查提交形式。可視為「以一個使用者痛點與一項高風險核心流程組織展示」的參考性先例。**但沒有**直接紀錄顯示作者刪除了哪些功能、如何取捨 demo 腳本，或這些選擇導致第三名；不得補造因果。
 
 ## 來源
 
@@ -47,13 +53,19 @@
 - 作者在 DEV Community 說，Bolt.new 讓他數分鐘內建立初始架構，並以 AI 功能產生程式片段、加快 debugging、調整 backend logic；他表示可因此集中處理 secure key management 的核心問題。[作者文章](https://dev.to/0xtommythomas/building-keyhaven-my-journey-with-bolt-at-the-worlds-largest-hackathon-3k2j)
 - 同一作者也把「不中斷服務的 automated key rotation」列為主要難題，稱以 AI-assisted code generation 與 prompt-based debugging 來快速 prototype／test；提交頁另列出 Resend alerts、Stripe billing 與跨瀏覽器 animation performance 的實作障礙。[作者文章](https://dev.to/0xtommythomas/building-keyhaven-my-journey-with-bolt-at-the-worlds-largest-hackathon-3k2j) [作品頁](https://devpost.com/software/keyhaven)
 
+### 與 MVP／demo 範圍直接相關的可查事實
+
+- **問題與核心流程**：作者在 Devpost 以自己反覆安全儲存、整理多服務 API key 的經驗說明問題；作品標題摘要為儲存、rotation、monitoring。作者在第一手文章特別指出，不中斷服務的 automated key rotation 是主要難題。這支持其核心問題與高風險流程的公開敘述，不代表本研究已驗證 rotation 成功或安全性。[作品頁](https://devpost.com/software/keyhaven) [作者文章](https://dev.to/0xtommythomas/building-keyhaven-my-journey-with-bolt-at-the-worlds-largest-hackathon-3k2j)
+- **可審查的展示材料**：本場官方 Devpost 頁要求約三分鐘的公開影片與可供評審、功能如描述般可用的公開 URL；KeyHaven 作品頁有嵌入影片、landing page／dashboard／key storage 畫面，並連到 live URL。這表示提交材料可被檢查；本研究未登入或操作 live app，故不宣稱它在研究日仍可用或每項功能均如描述。[賽事頁](https://worldslargesthackathon.devpost.com/) [作品頁](https://devpost.com/software/keyhaven)
+- **未可確認的收斂史**：作者列出 email alert、billing 與跨瀏覽器 animation 的困難，但未說明是否曾延後、移除或在 demo 中隱藏任何功能；文章亦無 demo review、失敗影片或返工紀錄。未找到不等於不存在。[作品頁](https://devpost.com/software/keyhaven) [作者文章](https://dev.to/0xtommythomas/building-keyhaven-my-journey-with-bolt-at-the-worlds-largest-hackathon-3k2j)
+
 ## 參考性先例
 
 ### 關鍵決策、限制、取捨與結果
 
 **來源直接陳述**：作者將 Bolt 作為 application logic／infrastructure 的主要工具，同時使用 Claude、ChatGPT 協助 ideation、程式改善與特定 implementation challenge。作者把 AI 描述為能加速架構建立、複雜邏輯、測試與 debug 的 coding partner；但他實際提到的 key rotation、email timing、billing flow、跨瀏覽器 rendering／performance 仍須測試與 troubleshooting。[作者文章](https://dev.to/0xtommythomas/building-keyhaven-my-journey-with-bolt-at-the-worlds-largest-hackathon-3k2j) [作品頁](https://devpost.com/software/keyhaven)
 
-**研究推論**：這個案例顯示 AI coding tool 可以將樣板與局部除錯的時間轉移給產品／風險判斷，但沒有移除整合驗證的工作。這是單一作者的回顧，不證明特定工具、prompt 或開發速度必然能得獎。
+**研究推論**：這個案例顯示 AI coding tool 可以將樣板與局部除錯的時間轉移給產品／風險判斷，但沒有移除整合驗證的工作。就公開記錄而言，「把高風險 rotation 視為核心難題」比「已證實刪除周邊功能」更有證據支持。這是單一作者的回顧，不證明特定工具、prompt、範圍選擇或開發速度必然得獎。
 
 ### 候選實務一：以可驗證的核心風險，約束 AI 快速原型的功能範圍
 

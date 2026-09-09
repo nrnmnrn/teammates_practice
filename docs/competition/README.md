@@ -2,6 +2,8 @@
 
 本頁記錄 Sea x OpenAI Codex Hackathon Taiwan 的正式活動資訊、隊內通知與仍待確認的事項。若不同通知之間有差異，以主辦方給本隊的最新正式通知為準，並保留差異。
 
+隊內準備展示時，預設讀[評選規劃判準](judging-planning-rubric.md)。
+
 ## 已確認資訊
 
 ### 官方活動資訊
@@ -26,7 +28,7 @@
 - **David Chen**：Sea 共同創始人暨蝦皮購物首席產品官（Chief Product Officer at Shopee）。負責蝦皮購物的產品策略與發展方向，並推動 Sea 集團在 AI 技術與開發者生態的投資與合作；他重視社群共同學習、實驗與建構對創新的作用。
 - **Oliver Jay**：OpenAI 國際業務主管（International Business Lead at OpenAI）。負責 OpenAI 的全球業務拓展與合作策略；他指出台灣在 Codex 採用與使用活躍度方面已進入全球前十大市場，並期待透過黑客松支持台灣開發者運用 Codex 解決真實世界問題。
 - **Thibault Sottiaux**：OpenAI Codex 負責人（Head of Codex at OpenAI）。領導 Codex 的產品開發與策略，並參與亞太開發者生態建設，專業涵蓋 AI 驅動的程式碼生成、開發者工具與開發流程優化。
-- 官方評審標準：問題框架（problem framing）、構建品質（build quality）、思考深度（depth of thought），以及 Codex 應用程度（Codex usage）。
+- 隊內記錄的四項規劃名稱：問題框架（problem framing）、構建品質（build quality）、思考深度（depth of thought）、Codex 應用（Codex usage）。公開定義與權重待核；見[評選規劃判準](judging-planning-rubric.md)，非官方 rubric。
 
 ### 本隊收到／已向主辦方確認
 
@@ -46,7 +48,7 @@
 ### 官方活動要求的解讀
 
 - 官方資訊要求參賽者使用 Codex 完成產品與展示；因此本隊的 demo 必須能說明 Codex 在需求理解、實作、測試或修正中的實際作用。
-- 官方評分同時重視問題定義、成品品質、思考深度與 Codex 使用成效；後續產品規格與 demo 設計應逐項留下可展示的證據。
+- 隊內規劃以四項名稱整理可展示證據；這不是官方評分宣稱。見[評選規劃判準](judging-planning-rubric.md)。
 
 ## 參考先例：新加坡站
 

@@ -1,6 +1,6 @@
 # 2024 Google Gemini API Developer Competition（線上）
 
-研究日期：2026-09-08
+研究日期：2026-09-09
 資訊標記：本筆記把可由主辦方或作品作者直接支持的內容標為「已確認資訊」；其餘明確標為「研究推論」或「未決問題」。
 
 ## 研究範圍
@@ -13,12 +13,19 @@
 
 案例觀察；尚未形成團隊決策或 Sea×OpenAI 台灣站規則。
 
+## 研究問題與覆核結論
+
+本案只回答：Jayu 是否有可回查證據顯示，得獎者以何種功能／資料邊界，令 MVP（最小可用作品）與 demo 能呈現明確價值？
+
+**覆核結論**：有。Google 的作品頁把核心體驗表述為「使用者明示後，取目前畫面作 context，並與畫面元素互動」；作者公開 demo，並說自己反覆請 reviewer 觀看至滿意。作品說明與公開 repository 同時把可存取範圍限於 active window、顯示中的 app，以及使用者直接要求的擷取。故可將其視為「以一條可見互動流程與明示邊界來敘述價值」的已驗證案例；**不能**將其誤寫為作者已公開完整刪除清單、功能優先排序，或此方法必然導致獲獎。
+
 ## 直接來源
 
 - [Google Developers：得獎公告（2024-11-21）](https://developers.googleblog.com/en/announcing-the-winners-of-the-gemini-api-developer-competition/)：主辦方的得獎名單與作品摘要。
 - [Google AI for Developers：Jayu 官方作品頁](https://ai.google.dev/competition/projects/jayu?hl=en)：主辦平台收錄的得獎作品說明；功能、架構與安全界線是參賽者提交內容，並非 Google 的獨立測試結果。
 - [Jayu 作者公開 repository](https://github.com/JonOuyang/Gemini-Computer-Use)：作者公開的可檢視程式碼與 demo 連結。
 - [Jonathan Ouyang 的賽後公開貼文](https://www.linkedin.com/posts/jon-ouyang_google-googlegemini-activity-7265418646028447745-uqkA)：作品作者的第一手復盤。
+- [Jayu 作者公開 demo video](https://www.youtube.com/watch?v=shnW3VerkiM)：由 repository README 直接連出；可檢視影片存在，未在本研究中逐段驗證其全部功能。
 
 ## 補充來源
 
@@ -51,6 +58,12 @@
 
 **已確認的作品取捨**：官方作品頁描述的不是「無限制電腦控制」，而是以正在顯示且被直接要求分析的畫面為邊界；這是一項作品作者／團隊公開說明的範圍選擇，不是安全性已獨立驗證的結論。[來源](https://ai.google.dev/competition/projects/jayu?hl=en)
 
+### 與 MVP／demo 範圍直接相關的可查事實
+
+- **核心價值的單一敘述**：官方作品頁用「以螢幕為 context、回答 prompt 並與螢幕元素互動」描述 Jayu；Google 得獎公告以視覺理解、直接互動與即時翻譯描述其展示價值。這些是作品頁的提交敘述與主辦方的得獎摘要，未證明評審只因這些功能而選它。[作品頁](https://ai.google.dev/competition/projects/jayu?hl=en) [公告](https://developers.googleblog.com/en/announcing-the-winners-of-the-gemini-api-developer-competition/)
+- **公開界線**：作品頁稱不讀取未顯示的資料夾或 app，僅在使用者直接要求時查看畫面；repository 另稱僅能看 active window、不能自行開啟 app。這使「目前可見畫面上的一次互動」成為可說明的 demo 邊界，但皆為作者宣稱，研究未執行驗證。[作品頁](https://ai.google.dev/competition/projects/jayu?hl=en) [repository](https://github.com/JonOuyang/Gemini-Computer-Use)
+- **demo 的反覆校正**：作者在賽後貼文稱，曾請 reviewer 反覆觀看 demo，直到自己認為影片完善；repository 直接提供 demo video 連結。此證明作者確有投入 demo review，不足以得出其修改了哪些畫面、功能或腳本。[作者貼文](https://www.linkedin.com/posts/jon-ouyang_google-googlegemini-activity-7265418646028447745-uqkA) [demo](https://www.youtube.com/watch?v=shnW3VerkiM)
+
 ## 參賽經驗
 
 以下是參賽者自己的公開敘述；它們是個別經驗，不可泛化為所有參賽者都會如此，也不是 Sea×OpenAI 台灣站的規則。
@@ -74,6 +87,7 @@
 ## 研究推論
 
 - **研究推論，不是需求**：這個案例讓人看到，AI-native 作品可以把 model capability 與一條具體可見的使用流程綁在一起（例如「看目前畫面後完成一個互動」），而不是只展示泛用聊天。
+- **研究推論，不是因果證明**：就公開證據而言，Jayu 的可見收斂在於資料／權限邊界與 demo 敘述，而非已證實的功能刪減史。日後若討論 MVP，可先問「一個明示輸入、可見處理、可觀察結果的流程」是否足以說明價值；不可把此寫成賽事評分公式或團隊決策。
 - **研究推論，不是規則**：當作品接觸敏感的畫面或語音時，把互動範圍寫得具體，可能有助於評審與使用者理解 demo 的界線；此推論不能取代真正的安全測試。
 - **研究推論，不是工作方式要求**：作者的壓力自述提醒團隊要把健康、時間盒（timebox）與停止條件納入未來討論，而不是複製其工作強度。
 
@@ -89,3 +103,13 @@
 - 主辦方是否曾公開完整評分 rubric 與 finalist feedback？本次查無直接來源。
 - 若未來比賽允許 computer-use 類能力，會如何要求權限說明、demo 資料與安全測試？需等待主辦方規則或另做查證。
 - 本隊是否有明確使用者、可展示的一步流程與可接受的資料界線？這是產品討論，現階段不在本筆記中替團隊決定。
+
+## 已驗證案例門檻判定
+
+**符合。**
+
+1. **主辦方直接成果證據**：Google 得獎公告直接列 Jayu 為 Best Overall App。[公告](https://developers.googleblog.com/en/announcing-the-winners-of-the-gemini-api-developer-competition/)
+2. **可檢查作品證據**：Google 官方作品頁可檢視產品、架構與界線；作者公開 repository 並直接連到 demo video。這證明公開提交材料存在，不代表功能、安全性或影片內容已由本研究完整重現。[作品頁](https://ai.google.dev/competition/projects/jayu?hl=en) [repository](https://github.com/JonOuyang/Gemini-Computer-Use) [demo](https://www.youtube.com/watch?v=shnW3VerkiM)
+3. **作者第一手紀錄**：Jonathan Ouyang 署名的賽後貼文自稱唯一開發者，並明示其 demo review 過程與投入代價。[作者貼文](https://www.linkedin.com/posts/jon-ouyang_google-googlegemini-activity-7265418646028447745-uqkA)
+
+此判定只表示本案滿足研究契約的三類可回查證據。它不構成跨案例結論、團隊採納，或 Sea×OpenAI 台灣站的任何已確認資訊。

@@ -1,6 +1,6 @@
 # 2025 ElevenLabs x a16z Worldwide Hackathon（線上組）
 
-研究日期：2026-09-08
+研究日期：2026-09-09
 資訊標記：本筆記將來源可直接支持的內容標為「已確認資訊」；我自己的解讀另標為「研究推論」，尚待主辦方或團隊決定的內容標為「未決問題」。
 
 ## 研究範圍
@@ -15,16 +15,33 @@
 
 案例觀察；尚未形成團隊決策或 Sea×OpenAI 台灣站規則。
 
-## 直接來源
+## 研究問題
 
-- [ElevenLabs：Worldwide Hackathon 得獎公告（2025-02-28）](https://elevenlabs.io/blog/announcing-the-winners-of-the-elevenlabs-worldwide-hackathon)：主辦方公告；包括賽事規模、40 小時與線上組名次。
-- [Hugo Tour Guide：Devpost 作品提交頁](https://devpost.com/software/hugo-tour-guide)：第一名作品作者／團隊的功能、技術、demo、repository、workflow 與復盤。
-- [Pep：Devpost 作品提交頁](https://devpost.com/software/pep-your-compassionate-physical-therapy-agent)：第二名作品作者／團隊的技術與挑戰復盤。
+Hugo Tour Guide 如何在此一得獎 prototype 中收斂功能範圍，使 MVP（Minimum Viable Product，最小可行產品）／demo 能清楚呈現價值？本檔只把團隊公開復盤當作單一 **參考性先例**，不把它升格為本隊做法或台灣站規則。
 
-## 補充來源
+## 基本資料
 
-- [官方 Devpost project gallery](https://elevenlabs-worldwide-hackathon.devpost.com/project-gallery)：賽事作品庫入口；可與個別作品頁交叉核對作品所屬賽事，但主辦方公告才是名次的主要證據。
-- [Agent SFX：Devpost 作品提交頁](https://devpost.com/software/agent-sfx)：線上組第三名的可檢視作品證據與技術材料。
+- 賽事／組別：2025 ElevenLabs Worldwide Hackathon 的 global virtual chapter（本文沿用官方章節名「Online hackathon winners」）。
+- 案例：Hugo Tour Guide；官方列為 Online 1st Prize。團隊為 Yilun Sun、Qiang Fang、David Chen、Aiden Zhao，四人、California, USA。[官方公告](https://elevenlabs.io/blog/announcing-the-winners-of-the-elevenlabs-worldwide-hackathon)
+- 覆核結果：符合「已驗證案例」的三項所需證據：官方得獎公告、可檢查作品材料、團隊第一手公開復盤。最後查閱：2026-09-09。
+
+## 來源
+
+### 官方來源
+
+- [Announcing the winners of the ElevenLabs Worldwide Hackathon](https://elevenlabs.io/blog/announcing-the-winners-of-the-elevenlabs-worldwide-hackathon) — ElevenLabs，作者 Louis Jordan、Thor Schaeff，主辦方公告，2025-02-28；查閱 2026-09-09。可直接確認賽事、Online 1st Prize、Hugo 功能摘要與四名成員。
+
+### 可檢查作品證據
+
+- [Hugo Tour Guide](https://devpost.com/software/hugo-tour-guide) — Hugo 團隊的 Devpost 提交頁（頁面列 Qiang Fang、Yilun Sun、Aiden Zhao、David Chen 為 creators；Qiang Fang 有提交更新），官方提交平台頁，查閱 2026-09-09。頁面可檢視功能說明、嵌入式影片與 live-app、前後端 repo 連結、agent workflow 連結、技術說明及團隊復盤。
+- [前端 repository：drbearcub/hugo](https://github.com/drBearcub/hugo) — 公開 GitHub repository，查閱 2026-09-09。README 自稱 Hugo Tour Guide 前端、連到官方得獎公告、影片與 backend repo；可檢查但不是主辦方名次證據。
+- [後端 repository：FWQ1234/voice_view_backend](https://github.com/FWQ1234/voice_view_backend) — 公開 GitHub repository，查閱 2026-09-09。由作品提交頁連結；可檢查但未在 README 自行說明 Hugo 關聯，故只作輔助作品材料。
+- [Demo video](https://www.youtube.com/watch?v=ysKjLtJra-g) — 由 Devpost 嵌入／前端 README 連結的公開影片，查閱 2026-09-09；可播放性會隨平台變動，本次僅確認其連結存在。
+
+### 補充來源／待核實來源
+
+- [官方 Devpost project gallery](https://elevenlabs-worldwide-hackathon.devpost.com/project-gallery) — 賽事作品庫入口，查閱 2026-09-09；可交叉確認作品所屬賽事，但官方公告才是名次的主要證據。
+- [Pep：Devpost 作品提交頁](https://devpost.com/software/pep-your-compassionate-physical-therapy-agent) 與 [Agent SFX：Devpost 作品提交頁](https://devpost.com/software/agent-sfx) — 同場其他名次的補充案例，不用來證明 Hugo 的取捨。
 
 ## 來源事實
 
@@ -44,7 +61,7 @@
 
 **官方得獎／成果證據**：ElevenLabs 將 Hugo 列為線上組第一名，並指出它規劃路線、回答在地文化／歷史問題並提供地圖。[公告](https://elevenlabs.io/blog/announcing-the-winners-of-the-elevenlabs-worldwide-hackathon)
 
-**可檢視作品證據**：作者在 [Devpost 作品頁](https://devpost.com/software/hugo-tour-guide) 提供嵌入式 demo、可點擊的 live app、前後端 repository 與 agent workflow；並描述 React 前端、Python 後端、ElevenLabs、OpenAI 與 Google Maps 的分工。這些是作品作者的公開材料，並非獨立審計。
+**可檢視作品證據**：[Devpost 作品頁](https://devpost.com/software/hugo-tour-guide)保留嵌入式影片、live-app 與前後端 repo／workflow 連結；[前端 repo](https://github.com/drBearcub/hugo)的 README 亦標示為 Hugo Tour Guide 前端。作品頁描述 React 前端、Python 後端、ElevenLabs、OpenAI 與 Google Maps 的分工。這些是公開作品材料，並非獨立審計；本次未執行 app 或程式。
 
 ### Pep – your compassionate Physical Therapy Agent（線上組第二名）
 
@@ -64,11 +81,12 @@
 
 ### 經驗一：Hugo 對 context／功能範圍的取捨
 
-- **來源證據**：[Hugo Tour Guide 的 Challenges、Accomplishments、What We Learned](https://devpost.com/software/hugo-tour-guide)。這是第一名作者／團隊在提交頁留下的公開復盤。
-- **公開經驗**：團隊說，context 資料很多時，LLM 難以遵從指令；因此刪減 guidelines、縮小 scope 來讓行為穩定。他們也表示在兩天內由大範圍想法收斂至 core value，交付較精簡的體驗；語音介面則測試多個 TTS API，認為回應速度與語言正確性重要。
-- **可供未來討論的問題**：在固定時間內，哪一條從輸入到輸出的核心體驗最值得先完成？可接受哪些 context、功能或語言先不做？語音 demo 要如何測量「反應夠快、語言正確」？
-- **限制／風險**：這是單一得獎團隊的敘述，沒有量化測試或反例，也可能受賽後敘事影響；「減 scope」不是在所有題目都正確的答案。
-- **待核實項目**：其所稱的 prompt／語音改善沒有公開 benchmark、延遲數據或使用者研究；若未來需要做相似功能，應自建測試情境與可觀測指標。
+- **來源證據：**[Hugo Tour Guide 提交頁的 Challenges 與 Accomplishments](https://devpost.com/software/hugo-tour-guide)，作者／團隊第一手公開復盤（頁面列 creator 與 Qiang Fang 的提交更新；查閱 2026-09-09）。團隊直接寫到：大量 context 令 LLM 難以遵從指令，遂刪減 guidelines、縮小 scope；又由大範圍想法快速收斂 core value，交付 streamlined experience。這可驗證「團隊曾如此陳述」，不驗證效能或因果。
+- **研究推論：**此案例可形成的單案觀察是：當一個核心流程受 context／指令穩定性拖累時，團隊選擇移除部分指南與範圍，讓 demo 聚焦於其辨識出的核心價值。這不是「少做必然得獎」的規則。
+- **何時值得討論：**短時程 prototype 已能指出一條端到端核心流程、但擴充情境使回應不穩或難以講清楚時。
+- **未來規劃問題：**哪一條從使用者輸入到可見結果的流程最能說明價值？哪些 context、情境或語言先暫緩，且如何明示 demo 的邊界？如何另行測試語音回應速度與語言正確性？
+- **限制／風險：**單一得獎隊伍的自述，無量化 benchmark、延遲數據、使用者研究或反例；作品頁同時列出多項功能，無法從公開材料判定 demo 實際啟用範圍及裁判採用何準則。
+- **待核實項目：**尚無團隊逐項功能刪留清單、版本歷史、demo 觀看／評分紀錄，或裁判對「範圍收斂」的直接評語；故不可推導此取捨造成得獎。
 
 ### 經驗二：Pep 對 SDK 穩定性與多 agent session 的復盤
 
