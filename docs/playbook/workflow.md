@@ -6,7 +6,7 @@
 
 - 于喬平常處理總 PRD 或模糊的新工作：`$grill-me` 或 `$grill-with-docs` → `$to-spec` → `$to-tickets` → `$implement`。
 - 其他組員承接已核准的子 PRD：子 PRD 就是 spec，先 `$to-tickets`，再對每張 Ticket 執行 `$implement`。
-- 每張 Ticket 真正完成後：先 `/compact`，再 `$task-closeout`。`$implement` 已 commit 時，closeout 用來核對狀態與下一步，不再重複 commit。
+- 每張 Ticket 真正完成後執行 `$task-closeout`。`$implement` 已 commit 時，closeout 用來核對狀態與下一步，不再重複 commit。
 - 少見或特殊情況下，于喬若明確指派組員從頭負責完整功能，該組員才參考于喬的完整流程。
 
 ## 接工作前
