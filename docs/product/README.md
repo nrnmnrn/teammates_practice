@@ -1,6 +1,16 @@
-# 產品規格（賽前規劃）
+# 產品入口
 
-目前保留報名題目作為歷史輸入，但不把它視為已凍結的決賽規格。正式開發前可依需求調整產品方向，無須另行向主辦方申請；但方向仍須由團隊共同決定，並符合已知規則。
+唯一自足的實作產品規格是 [build-handoff/PRD.md](../../build-handoff/PRD.md)。它定義目前方向：單節點排程、受限的真 AI 策略提案，以及固定比較驗證。
+
+使用者已確認採中文整合 PRD，且比賽從空專案開始；全員確認、演練與凍結仍待完成。此文件不代表主辦方背書。
+
+## 歷史與比較來源
+
+- [Hackathon_PRD.md](../../Hackathon_PRD.md)：原版排程 UI 規格。
+- [hackathon-prd_modified.md](../../hackathon-prd_modified.md)：比較用修改稿。
+- [hackathon-prd.md](../../hackathon-prd.md)：舊版英文 MiniGrid PRD。
+
+上述及任何其他舊 PRD／候選稿只供理解背景與比較，不是與 `PRD.md` 並行開發的規格，也不應複製入未來實作 repo。
 
 ## 原始報名內容摘要
 
@@ -11,12 +21,8 @@
 - 原成果：展示多環境任務遷移與失敗自癒的 prototype。
 - 原指標：成功率、跨環境泛化、樣本效率、災難性遺忘。
 
-## 正式開發前完成
+## 按需參考
 
-- [ ] 重新確認主要使用者、單一核心問題與七小時內的 demo 任務。
-- [ ] 說明與新加坡冠軍 Evoloop 的明確差異。
-- [ ] 定義可在固定時間內重現的驗收指標。
-- [ ] 決定架構、技術選型、demo 腳本及完整成員分工。
-- [ ] 產出實作交接包中的精簡產品規格。
+[得獎團隊研究](../research/sea-openai-winning-patterns.md)、[Vibe Coding 操作手冊](../playbook/README.md)、[賽前時程](../operations/schedule.md)可按需要閱讀；它們不取代 PRD。工具準備與團隊演練仍依既有安排進行。
 
 在正式開發前，規劃 repo 不建立可直接搬入決賽的程式碼、RL pipeline、Agent loop 或 reward logic。
