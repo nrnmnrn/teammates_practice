@@ -1,94 +1,59 @@
-# 四人工作分配建議版
+# 四人 child PRD 協作政策
 
-> 狀態：**已確認決策。**
+> 狀態：**作業設計已由規劃者確認；四位成員的角色確認與演練仍待完成。**
 >
-> 性質：operations（協作流程）決策，不是第二套產品規格。產品唯一權威仍是 [PRD](../../build-handoff/PRD.md)；目前 PRD 尚未改為四人協作，仍寫單一開發者、單一 worker、離線單頁 Gradio，且不串接隊友 backend。故不得把本頁描述為已完成的產品或 UI 改動。
+> 本頁是協作政策權威。產品決策仍暫停，直到主辦方回覆題目變更請求；本頁不新增產品需求，也不取代 parent PRD（總產品需求文件）。
 
-本頁依 [團隊準備狀態](team-readiness.md) 的既有紀錄訂定協作流程。兩位成員的「Vibe Coding 經驗偏少」只表示此工作方式經驗較少，不表示演算法或程式能力較差。實際分工以小型演練的完成證據調整。
+competition implementation workflow 只在官方 coding window 開始後的 future competition implementation repo 進行。本 planning repo 在賽前不建立任何比賽 source code；`build-handoff/` 是交給未來實作 repo 的唯一介面。賽前四人演練的 branch、Draft PR、review、merge 只在獨立、可丟棄的非比賽 toy／sandbox repo 進行，不在本 planning repo 或 future competition implementation repo 進行。
 
-## 已知、建議、待確認
+## 權威與交付單位
 
-- **已知**：主辦方已確認可調整題目方向，且賽前可建立規格文件及安裝 skill、MCP、plugin；參賽 repo 賽前不得建立程式碼。見 [比賽資訊](../competition/README.md)。這不等於所有自製內容都已獲批。
-- **已知**：PRD 定義五個固定 policy、deterministic simulator、一次受限 AI proposal、record、metrics/gates 與單頁 Gradio；見 [PRD](../../build-handoff/PRD.md)。
-- **已確認**：林于喬為派工、共用介面與整合負責人；人類仍負責 PR（Pull Request，合併前的變更審查）合併。
-- **待確認**：四人是否接受角色、GitHub 權限與 CI 演練。未確認前，現有 GitHub/CI 能力不可聲稱已啟用。
+決策權威依序為：**parent PRD > 已核准 child PRD > Ticket**。三者若矛盾，立即停止受影響工作；林于喬更新受影響規格與 Ticket。人或 agent 不得默默選擇一種解讀，或自行擴大範圍。
 
-## 先守住的範圍
+- 最終認領與交付單位是 child PRD。每份 child PRD 恰有一位 primary owner／writer，負責其全部 Ticket 與最終交付。
+- 一個 agent session 只執行一張 Ticket。Ticket 依 blocking edge（必須先完成的依賴）排序，不依票號排序。
+- child PRD 的唯一真相來源是 versioned repo Markdown。GitHub parent Issue 只連到它；Ticket 是 child Issue，或必須寫 Parent reference。GitHub Project 只追蹤狀態，不重複規格正文。
 
-目前不擅自把下列項目放入產品實作：Code-as-Policy 執行 sandbox、round-robin 搶占、rollback 動態套用、skills 序列化檢索、千筆效能測試、workload/failure injection。它們均非現行 PRD；應列為延期候選，待產品 scope、風險與驗收另行同意。
+## child PRD 何時可拆 Ticket
 
-「skills 工作流程」也不等於「產品策略庫」。前者是人與 AI 如何拆任務、交接與 review 的文件化方法；後者會改變產品行為，現階段不做。
+child PRD 至少要寫明：使用者結果、範圍／不做範圍、與 parent 的關係、輸入／輸出／contracts（介面約定）、跨 child 依賴、驗收／demo、owner／reviewer、未解問題。缺少會影響決策的資訊時，不可拆 Ticket。
 
-## 分工表
+新 parent 工作或內容有歧義時，依序使用 `$grill-me` 或 `$grill-with-docs`（質問假設與查既有文件）、`$to-spec`（整理規格）、`$to-tickets`（拆可執行工作）、`$implement`（完成一張工作單）。已核准且完整的 child PRD，先 `$to-tickets`，再每張 Ticket 各跑一次 `$implement`。若拆票時發現歧義，退回澄清，不帶著猜測實作。
 
-| 成員 | 主要交付與界線 | 不可自行決定 | 審查與完成證據 |
-|---|---|---|---|
-| 林于喬（隊長） | 維護總 PRD 的範圍、共同不可變規則、介面與全流程驗收；派工與整合。實作最小 AI 提案模組與一次性比較紀錄等高風險部分。 | 不可把個人架構決定當全隊共識；不可同時承擔全部 sandbox、evaluator、架構與審查。 | 人工審查與合併 PR；主要審查整合、總驗收與同一整合 commit 的證據；其自寫核心由 Neo 獨立審查。 |
-| 江咏宸（Neo） | simulator 語意與核心高風險邏輯主要負責人；做題目規則覆核；規劃 UI/demo。核心期間不接 UI 新增需求。 | 不可同時被指定為 UI 全職負責人與所有模組 supervisor；不可單獨定義 metrics 或 gate 規則。 | 必審題目規則、狀態、公式變更與首次核心；審 simulator 事件紀錄、固定場景與題目規則。若林于喬接手核心 integration，須明確轉交且一時只有一位修改者。 |
-| 吳昊祁 | 依已凍結格式完成唯讀 UI 表格／圖表；寫固定場景測試與操作驗證。 | 不可自行定義模擬時間、狀態轉移、策略或 UI 行為。 | 附截圖、固定場景預期、測試結果與操作步驟。低風險凍結格式工作可由家紳互查；看不懂即升級給 Neo 或于喬。 |
-| 許家紳 | 實作五個純排序函式；依已定公式完成 metrics/gates 的小任務。 | 不可自行新增排序規則、tie-break、公式、門檻或 failure 分類。 | 附輸入輸出例、單元測試與規格條目。低風險凍結規則工作可由昊祁互查；看不懂即升級給 Neo 或于喬。 |
+## 狀態、認領與工作時限
 
-此表避免把 simulator、千筆效能、workload/failure injection 一次交給較少 Vibe 經驗者，也避免 evaluator 由兩人各自負責。每張 Issue（工作單）應切成單一模組、可驗證結果，建議 30–60 分鐘時間盒；卡住 15 分鐘即依求助模板回報，不自行擴大範圍。互查不能取代高風險工作的獨立人類審查。
+狀態只有：Draft、Ready、Active、Blocked、Review、Done。林于喬確認派工；尚未認領者只能提議承接一整份未認領 child PRD，不可任意拿其中一張 Ticket。
 
-不採隨時監督。改設三個明確節點：開工前確認 Issue、介面與測試資料；卡住 15 分鐘立即求助；每 45–60 分鐘集中審查正在進行的工作與交接風險。每輪 session（一次連續工作時段）只執行一張 Issue；認領與最終交付單位是子 PRD。每個子 PRD 只限一位 owner，owner 承接其全部相關 Issue；不得多人同時實作同一子 PRD。于喬的 review queue 超過兩張時，暫停新派工，先整合。以上均為可調整時間盒，不是完成保證。
+child PRD 通常拆為 2–5 張 Ticket，或縮至可在 integration cutoff（整合截止點）前完成。若既有文件有指定，Ticket 目標為 30–60 分鐘。同一阻礙最多花 15 分鐘或提出兩次有證據的嘗試；之後標為 Blocked，附證據回報。活動最後 25% 時間保留給整合、review、demo 與 fallback。
 
-## PRD、子 PRD 與 Issue
+## 每個 session 的輸入與輸出
 
-總 PRD 不只是索引。它持有範圍、共同不可變規則、介面契約與全流程驗收。子 PRD 是認領與最終交付單位，只寫某模組如何滿足指定 requirement ID 與版本，引用總 PRD，不重複公共規則；每份只由一位 owner 實作。Issue 是一次 session 的執行單位，連到子 PRD 與其 requirement ID；不要再寫第三份規格。
+開始時，讀取：parent 的共同規則、完整 child PRD、目前 Ticket、已完成 blocker 的證據、最新 `main`／integration 狀態、未解紀錄。
 
-若有人提議用 20–30 分鐘「重建 architecture/contracts」，本建議的回答是：**不在現場重新發明。** 該時間只用於讀取、確認預先凍結的設計與檢查共同 interface；任何差異回報 owner 決策。20–30 分鐘是建議 timebox，不是完成保證。
+結束時，留下：Ticket 識別、驗收／測試證據、已做決策、未解問題、下一張可執行 Ticket。無法完成時也要留下同等證據。
 
-原承諾做錯或漏拆時，在原子 PRD 補 Issue。規格歧義或矛盾時，立刻停止受影響工作；林于喬澄清產品／整合取捨，Neo 做題目與領域核對。新增獨立成果時，由林于喬建立新子 PRD 與 Issue。成員不得自行擴增需求。完成不只等於子任務完成，而是：每張 Issue 的檢查與核對通過、可安全整合成果及早合併、子 PRD 最後完整驗收、整合通過、總驗收通過、人工核准，並有同一整合 commit 可追溯證據。
+## Ticket 完成與 Git 工作方式
 
-## Issue、依賴與交接
+Ticket 完成門檻：驗收條件達成、相關測試通過、`$implement-required` 的輕量 AI `/code-review` 完成、只有一個清楚 commit、限制／blocker 已記錄。每張 Ticket 不要求人類 review 或 merge；AI 永遠不可核准或 merge。
 
-沿用既有[一個任務的標準流程](../playbook/workflow.md)，本頁只補本題分工差異。Issue 最少填：問題、預期行為、驗收條件、不做範圍、負責人、子 PRD／requirement ID、依賴、完成證據與 30–60 分鐘時間盒。每輪 session 只執行一張 Issue，並依 blocking edges（必須先完成的依賴關係）排序，不依純票號排序。
+一份 child PRD 使用一條 branch 與一個 Draft Pull Request，不是每張 Ticket 各一條／一個。每張 Ticket 一個 commit，且只有 primary writer 能修改該 child PRD 的實作。重要共用介面可請林于喬快速確認；在依賴或整合節點同步 `main`。協助若變成實作，須正式轉交 owner，或使用隔離的例外 branch；不可並行改同一份工作。
 
-可直接使用的格式：
+child PRD 完成門檻：完整測試、最後 AI review、owner 自查、林于喬的架構／範圍／整合 review、高風險時咏宸（Neo）的領域結果 review、正式 PR、merge、merge 後整合驗收。依賴方僅能在 blocker 已 merge 並於 `main` 驗證後開工；只有林于喬明確核准 stable contract exception（穩定介面例外）才可提前。
 
-```text
-問題：
-預期行為：
-驗收條件：
-不做範圍：
-負責人／審查人：
-子 PRD／requirement ID：
-依賴與已約定測試資料：
-完成證據（測試、截圖或 trace）：
-時間盒：30–60 分鐘；卡住 15 分鐘依模板求助。
-```
+## 風險、變更與審查
 
-小任務例一：以已凍結的排序規則寫 tie-break 單元測試；不新增 policy、公式或 simulator。小任務例二：以已約定 comparison record 建唯讀六列比較表；不處理 API、播放狀態或新 UI 行為。依賴尚未合併時，只使用已約定的測試資料，不各自製造 simulator。
+高風險包括：題意、演算法結果、共用資料 contract、核心架構、跨 child 整合、主要 demo。高風險由林于喬加上咏宸（與領域相關時）審查。低風險為隔離的文案／樣式／小型測試／明確修復，由指定人類 reviewer 審查。
 
-## Git 與 AI review 流程
+- 已承諾行為有誤，或漏了內部工作：在原 child PRD 下新增 Ticket。
+- 規格模糊或矛盾：停止並澄清；咏宸負責領域核對。
+- 真正新增、可獨立交付的成果：林于喬建立新 child PRD 與其 Tickets。
 
-1. 建立 Issue，填既有 workflow 的必填項及本頁補充欄位；先確認其 blocking edges 已完成。
-2. 作者由 Issue 建 branch，先寫最小測試與實作，再自行驗證。
-3. AI 做唯讀程式碼／測試審查，列出檔案／行號、測試證據與規格不符處；AI 不可自行核准、不可自動 merge、不可盲從作者。工具若在受限環境執行，不接憑證，亦不自動執行不信任 PR 內容。
-4. 作者修正並重跑相關檢查；指定的人類審查人核對證據。可安全整合的成果由林于喬及早合併，不等待子 PRD 全部 Issue 完成。
-5. 林于喬保留 `main` 最終批准與合併。題目規則高風險項目需 Neo 也看過；子 PRD 全部 Issue 完成後，另做完整驗收。
+## 檢查、故障備援與驗證演練
 
-林于喬自己寫核心時，Neo 應獨立審查。若無第二位人類技術審查，必須記錄此限制，不能稱為「獨立審查」。一般讀取 Issue、分支內實作與低影響驗證不需逐次人類批准；只有 `main` 操作、合併、CI（持續整合，自動檢查）設定或其他高影響外部動作，才需當輪人類批准。本輪不執行。
+本地檢查一律必要。CI（持續整合，自動檢查）僅在演練後且使用者明確同意才導入；CD（持續部署）不是預設。
 
-## CI/CD 與 skills 的最小路徑
+GitHub 故障時，暫以每張 Ticket 一個本地檔案記錄，沿用相同識別與欄位；服務恢復後同步一次。不得讓本地與 GitHub 維持兩份分歧真相。
 
-建議先用人類可操作的最小檢查：相關測試與 lint。經全隊同意、確認 GitHub 權限並完成演練後，再考慮導入 CI；不需要 CD（持續部署，自動發布）自動部署，也不應以 secrets 或真實 API 呼叫作為 CI 必需條件。
+正式開始前，四人須在獨立、可丟棄的非比賽 toy／sandbox repo，以小型假 child PRD 走完 spec、Tickets、認領、sessions、Draft PR、review、merge、demo，並記錄時間與 blocker；不得在本 planning repo 或 future competition implementation repo 演練。演練不得含比賽 product code、可重用 implementation、RL pipeline、Agent loop 或 reward logic。competition implementation workflow 仍須待官方 coding window 開始。此演練與全員角色確認尚未完成，不可宣稱四人已確認。
 
-不先建立四套重複 skills。現有的 investigation、writing、code review、verification 與 task closeout 流程可先沿用。先準備三種短模板：任務拆解、受限任務執行／求助、證據 review。演練後若反覆出現同一缺口，再包成 1–2 個通用 skill。主辦方已允許賽前安裝 skill、MCP、plugin；見 [比賽資訊](../competition/README.md)。但此輪不建立 skill；自製 skill 若含參賽實作，是否越界仍需核對，且不可藉 skill 夾帶程式碼或硬編碼題目答案。最多規劃為日後可精簡放進 `build-handoff/`，本輪不複製。
-
-## 待決事項
-
-- [ ] 四人確認本建議版的 owner、review 人與求助時間上限。
-- [ ] 檢查 UI 截圖與實際行為；目前尚未檢查，不能聲稱比較、播放、重設與 AI 請求行為符合 PRD。
-- [ ] 若要四人協作實作，先同步更新產品 PRD；本頁不能取代該更新。
-- [ ] 確認 CI 權限、最小檢查與演練，再決定是否導入。
-- [ ] 以模板演練後，決定是否真的製作 1–2 個通用 workflow skill。
-- [ ] 若要自製 skill，查核其內容是否含參賽實作；不得以 skill 夾帶程式碼。
-
-## 白話說明
-
-這份建議把大工作拆成可驗證的小零件，並讓熟悉題目的 Neo 優先看模擬規則，讓隊長保留時間整合與審查。這可避免一位新人同時背負大量不清楚、風險高的工作，也避免兩人各自修改同一套判定標準。
-
-像蓋房子：總 PRD 是總藍圖，子 PRD 是各房間施工圖，Issue 是一張可完成的小工單。不能因為工單寫了做窗戶，就自己改動整棟房子的承重牆。每個零件做完仍要裝回房子、驗過整體，並由人確認後才算完成。
-
-現在仍不知道四人是否同意角色、UI 現況是否符合 PRD、CI 權限，以及自製 skill 是否會夾帶參賽實作。因此不能安全地啟用自動流程、宣稱 UI 已同步，或把延期功能當成既定產品。下一步需四位成員確認分工；若同意協作實作，林于喬再把必要變更同步到唯一產品 PRD。
+整體完成條件：所有 child PRD 都在同一份已整合的 `main` 為 Done、測試通過、demo 可用、fallback 已準備；林于喬核准整合，咏宸確認領域正確性。
