@@ -1,6 +1,6 @@
 # 驗收樹與子 PRD
 
-本檔定義驗收切分與實際確認方式。母 [PRD](PRD.md) 是唯一產品規則；本檔不重述或放寬它。Windows 為交接基準，Gradio UI 在 Windows 瀏覽器顯示；此基準尚未實測。
+本檔定義子 PRD 切分、相依與實際共同確認方式；證據只記於 [checklist.md](checklist.md)。母 [PRD](PRD.md) 全文是唯一產品規則，本檔只引用並補足驗收案例，不重述或放寬它。Windows 為交接基準，Gradio UI 在 Windows 瀏覽器顯示；此基準尚未實測。
 
 ## 共通規則
 
@@ -42,8 +42,8 @@ P04 另依 P03 的策略資料與 P05 的錯誤恢復。各項只在整份子 PR
 
 **案例**：
 
-- 正常：分別以 team 與明確選擇的 local 啟動；reset 後 t=0、FIFO、八筆初始資料及來源標籤正確。播放與單步後，scheduled、pending、running、completed／expired、worker 和四張指標卡皆對應快照。
-- 邊界：t=0 已到達且可行工作可派工；恰於 deadline 完成仍成功；全局結束後繼續播放，時間前進且吞吐量可下降。1440×900 與 1280×720 下控制項可用、無整頁水平溢出。
+- 正常：分別以 team 與明確選擇的 local 啟動；reset 後 t=0、FIFO、八筆初始資料及來源標籤正確，且 t=0 全部事件已處理，可已有 running、新 events 與 uses。播放與單步後，scheduled、pending、running、completed／expired、worker 和四張指標卡皆對應快照。
+- 邊界：t=0 已到達且可行工作可派工；恰於 deadline 完成仍成功；全局結束後繼續播放，時間前進且吞吐量可下降。以同一 backend 比較 `factory(seed=99)` 的預設場景，與 `initial_jobs=[]` 建立後 `reset(seed=99)` 的八筆資料及後續相同 `generate(1)` 結果（排除 run_id 等識別）；驗證 reset 不沿用空測試場景且 seed 用於後續生成，不要求不同 backend 或不同 seed 產生相同資料。1440×900 與 1280×720 下控制項可用、無整頁水平溢出。
 - 失敗：team 缺 factory 或載入失敗時，顯示明確錯誤；不得改用 local 或捏造快照。
 
 **結果紀錄**：記版本、team 或 local、操作、預期、實際結果、作者與共同確認者；附件可選。
@@ -74,9 +74,9 @@ P04 另依 P03 的策略資料與 P05 的錯誤恢復。各項只在整份子 PR
 
 **案例**：
 
-- 正常：以 §6.1 A 驗 FIFO、SJF、Priority、EDF、Hybrid 首筆；Library 預覽不切換，套用才切換。提案後接受 Hybrid，顯示 Mock／未經 evaluator 驗證，並更新策略快照、使用紀錄。
-- 邊界：arrival／ID 平手與 Hybrid priority、deadline、工時逐級比較；running 工作不被切換中斷；重複接受不產生重複 skill。
-- 失敗：非 proposed 狀態接受／拒絕、未知 policy 明確拒絕；拒絕維持原策略與技能庫；reset 移除 Hybrid 與相關歷史。
+- 正常：以 §6.1 A 驗 FIFO、SJF、Priority、EDF、Hybrid 首筆；Library 預覽不切換，套用才切換。idle、accepted、rejected 可提出單一 Mock Hybrid；接受後 Hybrid 加入兩處選單並登錄及更新策略快照；使用紀錄只隨實際派工更新。
+- 邊界：arrival／ID 平手與 Hybrid priority、deadline、工時逐級比較；running 工作不被切換中斷；Arena／Library 共用切換立即影響下次派工；手動切換保留待決候選；相同策略 no-op 保留 reason／diff；重複登錄不產生重複 skill，已是 Hybrid 接受仍記候選事件但不新增 policy_changed／diff。
+- 失敗：proposed 再提出、非 proposed 接受／拒絕、未知 policy 明確拒絕且不改狀態；拒絕維持操作當下策略與技能庫；reset 移除 Hybrid 與相關歷史。
 
 **結果紀錄**：同 P01，並記策略、切換原因、候選 stage 與策略快照資料。
 
@@ -91,7 +91,7 @@ P04 另依 P03 的策略資料與 P05 的錯誤恢復。各項只在整份子 PR
 **案例**：
 
 - 正常：暫停後可讀同一 snapshot 的卡片、三圖、code、diff，並與 Arena 的策略／時間一致；§6.1 C 的 completed、expired、throughput、P95 與歷史趨勢正確。
-- 邊界：t=0 throughput 為「—」；正時間無完成為零；空 P95 為「—」；單筆與多筆 P95 正確；顯示最近 60 個取樣及目前時間點，且不把整局結果宣稱為新策略效果。
+- 邊界：t=0 throughput 為「—」；正時間無完成為零；空 P95 為「—」；單筆與多筆 P95 正確；同時刻只留最終值，無事件推進不加永久取樣但目前點吞吐量更新；只以後端 metrics／series 按 time 去重後顯示最近 60 點（含目前點），且不把整局結果宣稱為新策略效果。
 - 失敗：尚未切策略時顯示「尚無策略變更」；取得 code／同步失敗時依 P05 的錯誤規則保留最後有效畫面，不能混用舊新資料。
 
 **結果紀錄**：同 P01，並記讀取時間、卡片值、圖表／code／diff 是否同一 revision。
@@ -107,14 +107,14 @@ P04 另依 P03 的策略資料與 P05 的錯誤恢復。各項只在整份子 PR
 **案例**：
 
 - 正常：兩個瀏覽器 session 各自有 adapter；Arena 控制操作由單一序列化入口執行，成功後更新其 revision。
-- 邊界：reset 後 generation 增加、revision 不歸零，舊 timer／回應不回灌；snapshot 防禦性副本，重同步只讀取、不重送注入。
-- 失敗：負 dt 與其他 ValidationError 保持原狀；OperationError 或未知狀態停止播放、保留最後有效畫面、顯示錯誤並要求 resync／reset。team 失敗永不降為 local。
+- 邊界：reset 後 generation 增加、revision 不歸零，舊 timer／回應不回灌；若 reset 成功後讀取失敗，重新同步發現新 run_id 仍可更新 generation 並發布完整新快照。snapshot 防禦性副本，重同步只讀取、不重送注入。
+- 失敗：負 dt 與其他 ValidationError 完全保持原狀；可證明未修改的 OperationError 暫停、保留最後有效畫面，使用者可修正後再操作。不明狀態則鎖定所有修改，連已排隊操作在執行前也拒絕，只允許重新同步或 reset；完整 snapshot 與 skills 同步成功，或 reset 讀回成功後才解除鎖，仍暫停且不重送。team 失敗永不降為 local。
 
 **結果紀錄**：同 P01，並記 session、generation／revision、錯誤類型、復原操作與實際狀態。
 
 ## 總體驗收與展示
 
-各子 PRD 審查前，先與已完成依賴確認串接。五份子 PRD 通過後，在合併結果進行最終全套整體驗收：local 與真 team 各跑完整契約 suite；team 模式跑完 90 秒流程；全隊共同確認最終展示。任何必要案例未通過，整體仍未通過。
+各子 PRD 審查前，先與已完成依賴確認串接。五份子 PRD 通過後，在共同 main 進行最終全套整體驗收：local 與真 team 各跑完整契約 suite；team 模式跑完 90 秒內部流程；全隊共同確認最終展示。真正自主適應 AI 的觀察、動作、評估證據與 owner 尚待全隊界定，因此不可由 Mock 或本包驗收宣稱完成。任何必要案例未通過，整體仍未通過。
 
 ## 母 PRD 對照
 
