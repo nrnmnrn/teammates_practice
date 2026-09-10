@@ -4,6 +4,8 @@
 
 Issue 至少要有：問題、預期行為、驗收條件、不做的範圍。缺少任何一項時先詢問，不要自行補出大型需求。
 
+每輪 session 開始前，先讀所屬子 PRD、總 PRD 的共同規則、目前 Issue、其 blocking edges（必須先完成的依賴關係）是否完成，以及最新整合狀態與前輪未解事項。依 blocking edges 排工作，不依純票號。若依賴未完成，改選可執行 Issue 或回報 owner，不自行繞過。
+
 可對 agent 說：
 
 ```text
@@ -50,5 +52,8 @@ Issue 至少要有：問題、預期行為、驗收條件、不做的範圍。�
 
 ## 7. Commit 與 Pull Request
 
-Commit 只包含一個目的。Pull Request 說明：做了什麼、為什麼、如何驗證、已知限制及 demo 影響。由于喬負責最終合併，高風險 Agent loop 採 pair programming。
+Commit 只包含一個目的。Pull Request 說明：做了什麼、為什麼、如何驗證、已知限制及 demo 影響。每張 Issue 完成後，跑既有測試、AI review 與人類核對；可安全整合的成果及早合併，不等待整個子 PRD。子 PRD 的全部 Issue 完成後，另做完整驗收。由于喬負責 `main` 最終合併，高風險 Agent loop 採獨立人類審查。
 
+## 8. 發現範圍或規格問題
+
+原承諾做錯或漏拆時，在原子 PRD 補 Issue。規格歧義或矛盾時，停止受影響工作，由于喬澄清，Neo 做領域核對。新增獨立成果時，由于喬建立新子 PRD 與 Issue。成員不得自行擴增需求。
