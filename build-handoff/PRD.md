@@ -327,6 +327,8 @@ type 固定使用 `arrived`、`started`、`completed`、`expired`、`policy_chan
 
 ## 6. 驗收案例與證據
 
+驗收單元、相依與共同確認方式見 [ACCEPTANCE.md](ACCEPTANCE.md)。本節案例仍是唯一行為要求；案例不是逐項批准或勾選單位。
+
 ### 6.1 可手算的共同測試資料
 
 以下案例在 local 與 team adapter 上都必須通過。用 factory 的 initial_jobs 建立獨立場景，不依賴隨機生成的八筆訂單。
@@ -350,50 +352,52 @@ type 固定使用 `arrived`、`started`、`completed`、`expired`、`policy_chan
 
 ### 6.2 pytest 必要覆蓋
 
-- [ ] 案例 A–D；每種策略的 arrival／ID 平手，Hybrid 的 priority、deadline、工時逐級比較。
-- [ ] 不可行訂單保留到 deadline；沒有合格工作時閒置；恰好 deadline 完成成功。
-- [ ] 大步 advance 與整數／小數分段 advance 的最終 jobs、事件順序與 metrics 相同；包含工時 0.3、以 0.1 分段的邊界。
-- [ ] 零時間吞吐量為 None；正時間無完成為零；無完成 P95 為 None；單筆與多筆 P95 正確。
-- [ ] 相同 seed 與操作序列可重現；失敗注入不改 RNG、jobs 或 events。
-- [ ] 20 筆上限；剩餘三名額不能加入四筆；終態不釋出名額。
-- [ ] 無效數值、布林值、零／負工時、重複 ID、過去 arrival、未知 policy、無效 count、負 dt 均明確拒絕。
-- [ ] Mock 提案不切策略，接受登錄 Hybrid，拒絕保持策略；reset 移除 Hybrid 並清理歷史。
-- [ ] Arena 與 Library 共用切換；僅預覽不切換；正在執行工作不中斷。
-- [ ] 兩個 factory 實例互不影響；snapshot 為防禦性副本；序列化成功。
-- [ ] controller 暫停、倍速、單步、reset、舊 generation／revision 拒收與例外恢復。
-- [ ] API 拒絕數字字串、Decimal 與 bool；輸出為有限 JSON 數值。驗證例外保持後端與 RNG 不變；狀態不明例外阻止重送，成功同步後才恢復操作。
-- [ ] team adapter 真的呼叫隊友後端；team 載入失敗不 fallback；驗收輸出包含後端來源。
+1. 案例 A–D；每種策略的 arrival／ID 平手，Hybrid 的 priority、deadline、工時逐級比較。
+
+2. 不可行訂單保留到 deadline；沒有合格工作時閒置；恰好 deadline 完成成功。
+
+3. 大步 advance 與整數／小數分段 advance 的最終 jobs、事件順序與 metrics 相同；包含工時 0.3、以 0.1 分段的邊界。
+
+4. 零時間吞吐量為 None；正時間無完成為零；無完成 P95 為 None；單筆與多筆 P95 正確。
+
+5. 相同 seed 與操作序列可重現；失敗注入不改 RNG、jobs 或 events。
+
+6. 20 筆上限；剩餘三名額不能加入四筆；終態不釋出名額。
+
+7. 無效數值、布林值、零／負工時、重複 ID、過去 arrival、未知 policy、無效 count、負 dt 均明確拒絕。
+
+8. Mock 提案不切策略，接受登錄 Hybrid，拒絕保持策略；reset 移除 Hybrid 並清理歷史。
+
+9. Arena 與 Library 共用切換；僅預覽不切換；正在執行工作不中斷。
+
+10. 兩個 factory 實例互不影響；snapshot 為防禦性副本；序列化成功。
+
+11. controller 暫停、倍速、單步、reset、舊 generation／revision 拒收與例外恢復。
+
+12. API 拒絕數字字串、Decimal 與 bool；輸出為有限 JSON 數值。驗證例外保持後端與 RNG 不變；狀態不明例外阻止重送，成功同步後才恢復操作。
+
+13. team adapter 真的呼叫隊友後端；team 載入失敗不 fallback；驗收輸出包含後端來源。
 
 復刻版測試入口須接受 `--backend`、`--factory`，由共用 fixture 選擇 adapter，同一份契約案例分別執行。缺少隊友後端時 team 驗收應失敗，不得 skip 後宣稱整體通過。
 
-```powershell
-conda run -n scheduler-ui python -m pytest -q --backend local
-conda run -n scheduler-ui python -m pytest -q --backend team --factory team_backend:create_backend
-conda run -n scheduler-ui python -m ruff check .
-conda run -n scheduler-ui python -m ruff format --check .
-```
+實作 repo 的 `uv` 命令見 [README「環境與從零啟動」](README.md#環境與從零啟動)；僅在相應入口存在時執行。
 
 ### 6.3 瀏覽器與完成定義
 
-- [ ] team 模式下三個 tabs 可使用，資料來源與 Mock 標籤始終可見。
-- [ ] 灰色等待到達、綠色等待 deadline、黃色處理到 EXIT、回收與歷史紀錄符合後端狀態。
-- [ ] 播放、暫停、單步、三段倍速、重設及注入名額正常；切 tab 不重複推進。
-- [ ] 二十筆資料全部可查看，畫面更新保留捲動位置；基本桌面視窗可讀，不要求手機像素對齊。
-- [ ] 策略、code、diff、Library、指標卡與圖表同步；reset 後舊回應不回灌。
-- [ ] 可在暫停時閱讀數值；全局結束後繼續播放造成吞吐量下降屬預期。
-- [ ] 以可控制的失敗 adapter 驗證錯誤文案、保留畫面與重新同步；另確認真實 team 模式沒有默默降級。
-- [ ] 90 秒流程在 team 模式走通，並留下測試輸出、操作紀錄及必要截圖。
+1. team 模式下三個 tabs 可使用，資料來源與 Mock 標籤始終可見。
+
+2. 灰色等待到達、綠色等待 deadline、黃色處理到 EXIT、回收與歷史紀錄符合後端狀態。
+
+3. 播放、暫停、單步、三段倍速、重設及注入名額正常；切 tab 不重複推進。
+
+4. 二十筆資料全部可查看，畫面更新保留捲動位置；基本桌面視窗可讀，不要求手機像素對齊。
+
+5. 策略、code、diff、Library、指標卡與圖表同步；reset 後舊回應不回灌。
+
+6. 可在暫停時閱讀數值；全局結束後繼續播放造成吞吐量下降屬預期。
+
+7. 以可控制的失敗 adapter 驗證錯誤文案、保留畫面與重新同步；另確認真實 team 模式沒有默默降級。
+
+8. 90 秒流程在 team 模式走通，並留下測試輸出與操作紀錄；附件、截圖或影音由團隊依需要決定，不是必要條件。
 
 **完成定義：所有必要功能與驗收通過、真實 team 串接已證實、文件足以讓隊友重啟。未通過的項目必須列出，不以畫面看起來可動代替契約驗證。**
-
-## 7. 7–8 小時實作與串接安排
-
-完整安排移至 [實作交接包 README](README.md#開工與-7-8-小時安排)。該 README 為本節唯一作業位置。
-
-## 8. 90 秒展示腳本
-
-完整腳本移至 [實作交接包 README](README.md#90-秒展示)。該 README 為本節唯一作業位置。
-
-## 9. 給 AI 實作者的交付指令
-
-完整交付指令移至 [實作交接包 README](README.md#給-ai-實作者的交付指令)。執行前先讀 [驗收清單](checklist.md)。
