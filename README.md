@@ -5,10 +5,9 @@
 ## 現在先做什麼
 
 1. 全員先讀 [比賽資訊](docs/competition/README.md)，確認哪些內容已證實、哪些仍待主辦方回覆。
-2. 閱讀 [得獎團隊研究](docs/research/sea-openai-winning-patterns.md)，把值得借鏡的做法轉成可驗收的行動。
-3. 依 [Vibe Coding 操作手冊](docs/playbook/README.md)完成安裝與練習。
-4. 依 [賽前時程](docs/operations/schedule.md)與[團隊準備狀態](docs/operations/team-readiness.md)完成三次會議及 9/11 全流程演練。
-5. 主辦方已確認正式開發前可調整題目、無須申請（見 [比賽資訊](docs/competition/README.md)）；待團隊決定方向後，再完成 [產品規格](docs/product/README.md)與 [實作交接包](build-handoff/README.md)。
+2. 閱讀 [得獎團隊研究](docs/research/sea-openai-winning-patterns.md)，把可借鏡之處與正式需求分開。
+3. 閱讀唯一實作產品規格：[build-handoff/PRD.md](build-handoff/PRD.md)。使用者已確認中文整合 PRD、比賽從空專案開始的方向；尚待全員確認、演練及凍結，且不代表主辦方背書。
+4. 依 [Vibe Coding 操作手冊](docs/playbook/README.md)完成安裝與練習，並依 [賽前時程](docs/operations/schedule.md)與[團隊準備狀態](docs/operations/team-readiness.md)完成既有演練安排；產品行為以 PRD 為準。
 
 Repo owner 可從 [Owner backlog](TODO.md)管理尚待補齊的文件與研究；它不取代團隊的賽前操作安排。
 
@@ -28,8 +27,8 @@ Repo owner 可從 [Owner backlog](TODO.md)管理尚待補齊的文件與研究�
 | [`docs/playbook/`](docs/playbook/README.md) | 新手 Vibe Coding 手冊 | 初版 |
 | [`TODO.md`](TODO.md) | owner 的文件與研究待辦 | 進行中 |
 | [`docs/operations/`](docs/operations/schedule.md) | 會議及演練安排 | 初版 |
-| [`docs/product/`](docs/product/README.md) | 產品需求與設計 | 賽前規劃，待團隊決定方向 |
-| [`build-handoff/`](build-handoff/README.md) | 比賽實作 repo 的最小輸入 | 模板 |
+| [`docs/product/`](docs/product/README.md) | 產品方向、歷史／比較來源與規格入口 | 使用者確認方向，待團隊確認 |
+| [`build-handoff/`](build-handoff/README.md) | 比賽實作 repo 的最小輸入與唯一 PRD | PRD 待團隊確認與演練 |
 | [`docs/adr/`](docs/adr/0001-separate-planning-and-build-repositories.md) | 難以回頭的重要決策 | 可使用 |
 
 ## 維護原則
