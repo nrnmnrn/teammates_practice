@@ -1,34 +1,64 @@
-# 子 PRD 工作流程
+# 子 PRD 工作清單
 
-完整協作規則見[四人協作政策](../operations/team-work-allocation.md)；skill 的適用情境見[技能對照表](skill-routing.md)。總 PRD 定義產品，子 PRD 定義可合併的完整功能，Ticket 定義一次可驗收工作。
+完整說明請看[四人協作政策](../operations/team-work-allocation.md)。先記住：**總 PRD 管整體、子 PRD 管完整功能、Ticket 管一次工作。**
 
-## 認領與開始
+## 誰做哪一段
 
-- 認領未認領、依賴已就緒的工作；領域沒有固定 owner。已有認領或同檔修改時，先協調。
-- 于喬保留既有 merge 授權。認領不改變合併、發布或產品決定的權限。
-- 子 PRD 的實際切分、名稱、依賴、owner 與 issues 均待團隊核可後才建立。核可後，規格文件管規格和依賴；GitHub 父 issue 管子 PRD 的認領、狀態與證據，子 issue 管 Ticket。issue 的依賴連結只是文件依賴的鏡像；開工前確認父子 issues 已建立並引用核可規格，尚未建立時僅在拆分計畫已核可且具建立任務的授權時建立，不捏造編號。
-- 每份子 PRD 使用一條 branch 與一個 Draft PR。每張 Ticket 原則一個 commit；一次 agent session 一票。正常一份子 PRD 先排二張、最多三張 Ticket；超過即重檢切分，不能用巨票遺漏驗收。
+- 于喬平常處理總 PRD 或模糊的新工作：`$grill-me` 或 `$grill-with-docs` → `$to-spec` → `$to-tickets` → `$implement`。
+- 其他組員承接已核准的子 PRD：子 PRD 就是 spec，先 `$to-tickets`，再對每張 Ticket 執行 `$implement`。
+- 每張 Ticket 真正完成後：先 `/compact`，再 `$task-closeout`。`$implement` 已 commit 時，closeout 用來核對狀態與下一步，不再重複 commit。
+- 少見或特殊情況下，于喬若明確指派組員從頭負責完整功能，該組員才參考于喬的完整流程。
 
-開工前做短檢查：讀總 PRD、子 PRD、當前 Ticket、相依證據、最新 `main` 與未解紀錄。跨子 PRD 的前置成果必須已 merge 並在 `main` 驗證，不能只看 issue closed；于喬明確同意穩定介面並行並留下證據時例外。同一子 PRD 的下一張 Ticket 可在同 branch 使用前一張成果。資訊不足、互相矛盾或無法判斷卡點，使用 `$caveman:investigate-first` 收集證據；需要產品取捨時，由人決定。原因不明、難重現或偶發程式錯誤使用 `$diagnosing-bugs`。已清楚的 Ticket 用 `$implement`；`$caveman:cavecrew` 只用於定位、至多兩檔小修或精簡 diff review，不保證 token 節省或結果正確。
+## 接工作前
 
-## 執行與完成
+- [ ] 我讀過總 PRD、完整子 PRD 與目前 Ticket。
+- [ ] 子 PRD 說清楚交付結果、範圍、不做範圍、依賴、驗收方式、owner 與未解問題。
+- [ ] 于喬已確認我承接這一整份子 PRD。
+- [ ] 前置成果已在 `main` 可用；若未可用，已取得于喬的明確例外同意。
+- [ ] 子 PRD 有一條 branch 與一個 Draft PR。
 
-1. 只做一張可執行 Ticket，依真實依賴順序，不只看票號。
-2. 執行 `$implement`，完成實作、相關測試與 `/code-review`。
-3. 實作、必要測試與 review 通過後，執行 `$task-closeout` 核對規格、證據、Git 狀態與下一步，並申請 commit 批准。
-4. 本團隊覆寫 `$implement` 的自動 commit：**未取得明確授權不得 commit。**可複製指令：`請依本 Ticket 執行 $implement，完成實作、測試與 /code-review；不要 commit。必要驗證通過後，執行 $task-closeout 提出核可。`已有授權時依其範圍，不重複詢問。
-5. closeout 完成後，可問是否使用 `$handoff`。換 session 或 Blocked 也可 handoff；不可把未完成工作寫成完成。handoff 只寫 OS 暫存目錄，不進 repo；摘要文件未記錄的進度、假設與 blocker，並引用既有規格、issue、測試、review 與 diff 證據。
+> **備注：什麼是「前置成果已在 `main` 可用」？**
+> 這張 Ticket 所依賴的其他子 PRD 成果，已合併進團隊共用的正式版本 `main`，且確認可用。例如畫面要顯示模擬結果前，模擬器必須先能產生正確結果。同一份子 PRD 的下一張 Ticket 可直接使用同一條 branch 中前一張 Ticket 的成果，不必每張 Ticket 都先合併到 `main`。
+>
+> **備注：什麼是 Draft PR？**
+> Draft Pull Request 是「仍在施工」的變更單。它讓隊友看見子 PRD 的進度，但尚未能合併。每份子 PRD 只開一個 Draft PR，所有 Tickets 的 commits 都放進去；子 PRD 全部完成、通過完整檢查與人工審查後，才轉為正式 PR 並 merge。
 
-同一 blocker 超過 15 分鐘，或兩次有證據嘗試仍未解，標為 Blocked 並回報。完成一份子 PRD 前，全部 Ticket、必要驗收、完整測試、AI review 與作者自查都要具備；作者自驗後，至少另一位隊員共同確認，於父 issue／PR 留下驗證版本、預期與實際結果及審查證據。merge 與 release 仍須使用者授權；merge 後還要在 `main` 確認整合結果。日期與參與者沿用 GitHub 紀錄，不在目錄另填欄位。
+## 每次 agent session
 
-## 交接包與環境
+- [ ] 讀總 PRD 共用規則、完整子 PRD、目前 Ticket、前置證據、最新 `main` 與未解紀錄。
+- [ ] 只做一張目前可執行的 Ticket。
+- [ ] 若發現文件矛盾或題意不清，停下來回報于喬；需要時請咏宸核對。
+- [ ] 若同一 blocker 超過 15 分鐘，或兩次有證據嘗試仍無法解決，標為 Blocked。
+- [ ] 完成時留下驗收與測試證據、清楚 commit、未解問題、下一張可執行 Ticket。
 
-目前交接包的短版實作流程見 [WORKFLOW.md](../../build-handoff/WORKFLOW.md)。日後子 PRD 目錄只在拆分計畫獲團隊核可後建立；本 planning repo 不寫比賽程式。
+> **備注：什麼是前置證據？**
+> 它不是只指上一張 Ticket，而是「我現在可安全開始」的證明。可能是前一張 Ticket 的 commit 與測試結果、其他子 PRD 已 merge 到 `main` 的紀錄、于喬明確同意先依穩定介面並行，或本 Ticket 沒有前置依賴。
 
-產品規格與範圍需團隊決定；現有已確認與待確認比賽資訊以[比賽資訊](../competition/README.md)為準。實作 repo 使用既有 `uv` 設定；先檢查既有配置，不新增依賴。
+## 一張 Ticket 做完才算完成
 
-賽前只在獨立、可丟棄的非比賽 toy／sandbox repo 演練流程，且不得放競賽碼或可重用實作。CI 須獲使用者明確授權才導入；CD 非預設。
+- [ ] 驗收條件全部通過。
+- [ ] 相關測試通過。
+- [ ] 執行 `$implement`，完成其要求的 AI `/code-review` 與 commit。
+- [ ] 記錄限制或 blocker。
 
-## 白話說明
+每張 Ticket 不要求人工 review 或 merge。不要等待整份子 PRD 做完才第一次檢查成果；遇到共用介面或整合點，請于喬快速確認。
 
-子 PRD 像一間完整房間，Ticket 像一次施工。先確認地基和前一段工程可用，再認領施工；每次只完成一小步並留下可查證結果。房間全部完成後，大家一起檢查，再由有權限的人合併。若圖紙不清或牆面出問題，先查清楚或請人決定，不能猜著施工。
+## 子 PRD 做完才關閉
+
+- [ ] 全部 Tickets 已完成，且整個功能真的可以使用。
+- [ ] 完整測試、最後 AI review、owner 自查均完成。
+- [ ] 于喬完成架構、範圍與整合 review。
+- [ ] 高風險結果已由咏宸核對。
+- [ ] 正式 PR merge 後，已在 `main` 驗收整合結果。
+
+## 變更規則
+
+- 原本功能做錯或漏一步：原子 PRD 補 Ticket。
+- 新增獨立功能：于喬新增子 PRD 與 Tickets。
+- 不清楚或衝突：停止，先把規格寫清楚。
+
+## 賽前限制
+
+本 planning repo 不寫比賽程式。官方 coding window 開始後，才在未來 competition implementation repo 開發；`build-handoff/` 是唯一交接介面。
+
+正式開始前，只在獨立、可丟棄的非比賽 toy／sandbox repo 演練此流程。演練不可含比賽產品程式或可重用實作。CI 需在演練後取得使用者明確同意；CD 不列為預設。
