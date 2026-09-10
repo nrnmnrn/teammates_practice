@@ -1,4 +1,4 @@
 interface:
   display_name: "Task Closeout"
-  short_description: "Close out a completed, validated task"
-  default_prompt: "Use $task-closeout to reconcile status, prepare a precise commit-approval request, and identify the next action."
+  short_description: "Close out a completed task after context compaction"
+  default_prompt: "Use $task-closeout after /compact to reconcile status, prepare precise manual commit commands, and identify the next action."

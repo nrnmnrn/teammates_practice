@@ -1,31 +1,28 @@
-# 環境與 session 習慣
+# 環境配置
+ - 將 docs/playbook/files_for_teamates/ 內我調整好的 AGENTS.md 複製到 ~/.codex/AGENTS.md (全域 AGENTS.md)；task-closeout 複製到 ~/.codex/skills/task-closeout 底下
+ - 安裝各個開發用的 skills，如caveman, matt pocock skills, context mode, context7
+ - 確定自己的 skills 或 plugins 沒有太多此競賽用不到導致浪費 context window 的問題
+ - 安裝 uv 後，在 uv 內安裝全域的 ruff, pytest, mypy
 
-本頁記錄團隊可採用的賽前環境原則與個人經驗。正式實作規則以未來交接包的 [README](../../build-handoff/README.md)、[AGENTS](../../build-handoff/AGENTS.md) 與 [WORKFLOW](../../build-handoff/WORKFLOW.md) 為準。
 
-## 賽前環境
+# 使用 codex cli 而不是 chatgpt desktop ui
+Codex CLI 的 bug 比起 chatgpt desktop ui 來得少。之前遇過某個 mcp 在 CLI 端才能啟用，但是在 UI 端卻失效
 
-- 開賽後，由完整 `build-handoff/` 建立實作 repo；不要只複製其中一份模板。現有入口文件彼此以相對路徑引用；子 PRD 目錄待拆分計畫獲團隊核可後才建立。
-- `AGENTS.md` 是實作 repo 專用規則，不要把整份覆蓋到全域 `~/.codex/AGENTS.md`。個人可在全域檔保留跨專案都適用的短規則；repo 規則留在 repo 內。
-- 依實作 repo 的 `pyproject.toml` 與 lockfile 使用 `uv`。先讀既有設定，再依交接包執行 `uv sync --locked`、測試、lint 或型別檢查；不要為了本流程全域安裝 `ruff`、`pytest` 或 `mypy`，也不要手改依賴或 lockfile。
-- 安裝並啟用真正需要的 skills／plugins 即可。每個額外工具都會增加選擇與 context 負擔；適用情境見 [Skills 情境對照表](skill-routing.md)。
-- 賽前演練只在可丟棄的 toy／sandbox repo 進行，不能產生可搬入競賽的程式碼。憑證各自管理，不共享 API key、token、密碼或 `.env`。
+# /compact
+在一個任務完成或是長對話後，執行 /compact。
 
-## 一張 Ticket 的工作順序
+# $task-closeout
+在一個任務完成後，先執行 /compact ，再執行 $task-closeout
 
-1. 讀交接包與當前 Ticket，確認成功條件、依賴、範圍和已存在的未提交修改。
-2. 依 Ticket 執行實作、相關測試與 `/code-review`；程式變更依 repo 規則執行檢查。
-3. 實作、測試與 review 均完成後，執行 `$task-closeout` 整理規格、證據、Git 狀態與下一步，並請求人類批准 commit。
-4. 未獲批准不 commit、push、merge 或 deploy；已有明確批准時，依該範圍執行，不重複詢問。
+# /quit
+建議在做完該session任務後執行 /quit，然後開新的 terminal 分頁輸入 'codex' 執行新的任務。
+創建新的分頁執行可以減少該分頁的歷史紀錄太長問題，要回去看歷史紀錄會往上滑很久
+執行完該session要執行 /quit 是為了避免有進程佔用問題，如果直接關掉該分頁有可能不會關掉該進程，之後要 resume 有可能遇上該進程仍在執行的 bug，所以 /quit 是結束一個 session 任務最保險的做法
 
-`/compact` 由當前 agent 依對話長度與可讀性判斷；不是任何步驟的必要前置。換 session 或工作 Blocked 時可用 `$handoff`；它只寫 OS 暫存區，僅摘要既有文件尚未記錄的新進度、假設與 blocker，並引用現成規格、issue、測試、review 或 diff。不是每張 Ticket 都必須 handoff，也不能把未完成工作寫成完成。
-
-## 個人觀察／待驗證；非強制流程
-
-以下是過去使用經驗，不是 Codex 或比賽的已確認規則：
-
-- 有人曾在 Codex CLI 成功使用某 MCP，而 desktop UI 當時沒有成功；遇到工具差異時，先記錄版本、操作與錯誤，再用目前環境重現或求助。
-- 結束一段工作或需要另開脈絡時，可自行選擇 `/quit`、新 terminal、`/fork` 或 `/compact`。使用前以目前 CLI 的說明與實際結果為準；不要把舊經驗視為固定 bug 或必做程序。
-
-## 白話說明
-
-交接包像一套同款零件的說明書；只拿走其中一頁，其他頁的頁碼會對不上。全域規則則像個人筆記，應只放人人通用的提醒，不能取代某一場比賽的施工圖。每張工作票先完成、測過、審過，再請人決定是否提交；交接只是在換人時留下便條，不是每次都必須寫。
+# /fork
+當需要在同個歷史 context 下執行不同任務時用的
+/fork 完會給 session ID （例如：01a0800e-2166-7e60-b542-d1ffddfb686d），複製下來並貼上新的 terminal 分頁
+該 session /fork 完後要馬上 /quit，不然會被父進程佔據而無法開啟/fork，這算是codex沒處理好的地方
+/quit 完會生成復原指令（例如：codex resume 01a08010-1d6c-7940-a670-0696d166f493）
+開兩個新的 terminal 分頁：一個分頁輸入 /fork 復原指令 (codex resume 01a0800e-2166-7e60-b542-d1ffddfb686d)；一個分頁輸入 /quit 復原指令 (codex resume 01a08010-1d6c-7940-a670-0696d166f493)
+這樣才能基於同個歷史context分開開發
