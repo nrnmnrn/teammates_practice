@@ -1,59 +1,86 @@
-# 四人 child PRD 協作政策
+# 四人協作：用「總 PRD、子 PRD、Ticket」把工作做完整
 
-> 狀態：**作業設計已由規劃者確認；四位成員的角色確認與演練仍待完成。**
+> 狀態：**流程已確認；四位成員仍須確認角色，並完成一次演練。**
 >
-> 本頁是協作政策權威。產品決策仍暫停，直到主辦方回覆題目變更請求；本頁不新增產品需求，也不取代 parent PRD（總產品需求文件）。
+> 本頁只說明合作方式，不新增產品需求。產品決策仍待主辦方回覆題目變更請求。
 
-competition implementation workflow 只在官方 coding window 開始後的 future competition implementation repo 進行。本 planning repo 在賽前不建立任何比賽 source code；`build-handoff/` 是交給未來實作 repo 的唯一介面。賽前四人演練的 branch、Draft PR、review、merge 只在獨立、可丟棄的非比賽 toy／sandbox repo 進行，不在本 planning repo 或 future competition implementation repo 進行。
+## 先懂三個名詞
 
-## 權威與交付單位
+把整個比賽想成蓋一間房子。
 
-決策權威依序為：**parent PRD > 已核准 child PRD > Ticket**。三者若矛盾，立即停止受影響工作；林于喬更新受影響規格與 Ticket。人或 agent 不得默默選擇一種解讀，或自行擴大範圍。
+- **總 PRD** 是全屋藍圖：產品要解決什麼問題、大家共用什麼規則、最後怎樣才算完成。
+- **子 PRD** 是其中一個完整房間的藍圖：例如「模擬結果可以正確展示」。一人負責把這個房間做到可用。
+- **Ticket** 是房間裡的一個施工步驟：例如先做好輸入資料，再做好計算，再做畫面驗證。一次 agent session 只做一張。
 
-- 最終認領與交付單位是 child PRD。每份 child PRD 恰有一位 primary owner／writer，負責其全部 Ticket 與最終交付。
-- 一個 agent session 只執行一張 Ticket。Ticket 依 blocking edge（必須先完成的依賴）排序，不依票號排序。
-- child PRD 的唯一真相來源是 versioned repo Markdown。GitHub parent Issue 只連到它；Ticket 是 child Issue，或必須寫 Parent reference。GitHub Project 只追蹤狀態，不重複規格正文。
+規則很簡單：**總 PRD > 子 PRD > Ticket**。下層內容與上層不一致時，先停下來，不猜、不自行改需求。由于喬更新文件；涉及題目理解或結果正確性時，請咏宸確認。
 
-## child PRD 何時可拆 Ticket
+本 planning repo 不寫比賽程式。官方 coding window 開始後，才在未來的 competition implementation repo 開發；`build-handoff/` 是交給該 repo 的唯一文件介面。
 
-child PRD 至少要寫明：使用者結果、範圍／不做範圍、與 parent 的關係、輸入／輸出／contracts（介面約定）、跨 child 依賴、驗收／demo、owner／reviewer、未解問題。缺少會影響決策的資訊時，不可拆 Ticket。
+## 每個人的責任
 
-新 parent 工作或內容有歧義時，依序使用 `$grill-me` 或 `$grill-with-docs`（質問假設與查既有文件）、`$to-spec`（整理規格）、`$to-tickets`（拆可執行工作）、`$implement`（完成一張工作單）。已核准且完整的 child PRD，先 `$to-tickets`，再每張 Ticket 各跑一次 `$implement`。若拆票時發現歧義，退回澄清，不帶著猜測實作。
+- **于喬** 是總設計師與整合者：確認總 PRD、切出子 PRD、指派 owner、處理跨子 PRD 問題、審查並合併最後成果。
+- **咏宸（Neo）** 是題目與結果的核對者：檢查演算法結果、題意、高風險決定與 demo 是否合理。
+- **子 PRD owner** 是一個完整功能的負責人：依序完成自己子 PRD 的所有 Tickets，最後證明整個子 PRD 可用。
+- **其他隊員** 可提議承接尚未有人負責的完整子 PRD；不可隨意抽走別人的單張 Ticket。
 
-## 狀態、認領與工作時限
+一份子 PRD 只有一位主要寫作者。這像一位廚師負責一道菜：別人可幫忙試味道，但不能同時各自往同一鍋加料。
 
-狀態只有：Draft、Ready、Active、Blocked、Review、Done。林于喬確認派工；尚未認領者只能提議承接一整份未認領 child PRD，不可任意拿其中一張 Ticket。
+## 工作總覽（overview）
 
-child PRD 通常拆為 2–5 張 Ticket，或縮至可在 integration cutoff（整合截止點）前完成。若既有文件有指定，Ticket 目標為 30–60 分鐘。同一阻礙最多花 15 分鐘或提出兩次有證據的嘗試；之後標為 Blocked，附證據回報。活動最後 25% 時間保留給整合、review、demo 與 fallback。
+| 誰 | 平常負責什麼 | 使用哪段流程 | Overcooked! 比喻 |
+| --- | --- | --- | --- |
+| 于喬 | 把總 PRD 的模糊想法變成可分配的子 PRD，分派工作，處理跨組問題與最後整合。 | `$grill-me` 或 `$grill-with-docs` → `$to-spec` → `$to-tickets` → `$implement` | 主廚：決定菜單，確認整桌菜能一起端出。 |
+| 子 PRD owner | 承接一份已核准的子 PRD，按依賴順序完成所有 Tickets。 | 先 `$to-tickets`；每張 Ticket 執行 `$implement`，完成後 `/compact` 再 `$task-closeout` | 一道菜的負責廚師：從備料到擺盤。 |
+| 咏宸 | 核對題意、演算法結果與高風險 demo；需要時協助于喬釐清問題。 | 以 review、核對與必要的完整流程為主 | 試菜與品質檢查者。 |
+| 其他隊員 | 提議承接未認領的完整子 PRD，或依于喬安排協助核對。 | 承接子 PRD 時，依子 PRD owner 流程 | 等待接下一道完整料理的廚師。 |
 
-## 每個 session 的輸入與輸出
+這是正常分工，不是限制。若出現少見或特殊情況，于喬明確指派某位組員從頭負責一項完整功能時，該組員可參考于喬的完整流程，先釐清需求、寫清楚規格，再拆 Tickets。未獲指派時，不自行重寫總 PRD 或另開產品方向。
 
-開始時，讀取：parent 的共同規則、完整 child PRD、目前 Ticket、已完成 blocker 的證據、最新 `main`／integration 狀態、未解紀錄。
+## 從想法到完成的流程
 
-結束時，留下：Ticket 識別、驗收／測試證據、已做決策、未解問題、下一張可執行 Ticket。無法完成時也要留下同等證據。
+于喬通常處理總 PRD、新功能或仍模糊的工作，依序使用：
 
-## Ticket 完成與 Git 工作方式
+`$grill-me` 或 `$grill-with-docs`（找出不清楚處）→ `$to-spec`（寫清楚規格）→ `$to-tickets`（拆施工步驟）→ `$implement`（完成工作）。
 
-Ticket 完成門檻：驗收條件達成、相關測試通過、`$implement-required` 的輕量 AI `/code-review` 完成、只有一個清楚 commit、限制／blocker 已記錄。每張 Ticket 不要求人類 review 或 merge；AI 永遠不可核准或 merge。
+其他組員承接已核准且內容完整的子 PRD 時，不必重做完整訪談。子 PRD 本身就是已寫清楚的 spec。先執行一次 `$to-tickets`，再按順序讓每張 Ticket 各執行一次 `$implement`。每張 Ticket 確認完成後，先執行 `/compact`，再執行 `$task-closeout`，留下狀態、證據與下一步。
 
-一份 child PRD 使用一條 branch 與一個 Draft Pull Request，不是每張 Ticket 各一條／一個。每張 Ticket 一個 commit，且只有 primary writer 能修改該 child PRD 的實作。重要共用介面可請林于喬快速確認；在依賴或整合節點同步 `main`。協助若變成實作，須正式轉交 owner，或使用隔離的例外 branch；不可並行改同一份工作。
+`$implement` 會要求開發、測試、`/code-review` 與 commit。
 
-child PRD 完成門檻：完整測試、最後 AI review、owner 自查、林于喬的架構／範圍／整合 review、高風險時咏宸（Neo）的領域結果 review、正式 PR、merge、merge 後整合驗收。依賴方僅能在 blocker 已 merge 並於 `main` 驗證後開工；只有林于喬明確核准 stable contract exception（穩定介面例外）才可提前。
+拆 Ticket 時，子 PRD 至少要有：要交付什麼、做什麼與不做什麼、和總 PRD 的關係、輸入與輸出約定、依賴什麼、怎樣驗收、owner、reviewer、還有哪些未解問題。缺少會影響決定的內容時，不開工。
 
-## 風險、變更與審查
+## 子 PRD owner 每次工作怎麼做
 
-高風險包括：題意、演算法結果、共用資料 contract、核心架構、跨 child 整合、主要 demo。高風險由林于喬加上咏宸（與領域相關時）審查。低風險為隔離的文案／樣式／小型測試／明確修復，由指定人類 reviewer 審查。
+1. 讀總 PRD 的共用規則、完整子 PRD、目前 Ticket、前置工作證據、最新 `main` 狀態與未解紀錄。
+2. 只完成目前一張 Ticket，並依真正依賴順序做，不只看票號。
+3. 通過該 Ticket 的驗收條件與相關測試，執行 `$implement`，留下清楚 commit、結果與未解問題。
+4. Ticket 已真正完成時，先執行 `/compact`，再執行 `$task-closeout`。它核對完成狀態、改動範圍與下一張優先工作；`$implement` 已 commit 時，closeout 不需要再產生第二個 commit。
+5. 下一次 session 再讀同一份子 PRD，接著完成下一張可做 Ticket。
+6. 全部 Tickets 完成後，驗收整個子 PRD，而不是只看「每張票都關掉了」。
 
-- 已承諾行為有誤，或漏了內部工作：在原 child PRD 下新增 Ticket。
-- 規格模糊或矛盾：停止並澄清；咏宸負責領域核對。
-- 真正新增、可獨立交付的成果：林于喬建立新 child PRD 與其 Tickets。
+一張 Ticket 的完成標準只有：驗收條件通過、相關測試通過、`$implement` 的 AI `/code-review` 已完成、commit 清楚、限制或 blocker 已記錄。每張 Ticket 不必人工 review 或 merge，避免過度拖慢速度。
 
-## 檢查、故障備援與驗證演練
+若同一個 blocker 花超過 15 分鐘，或已做兩次有證據的嘗試，標記為 Blocked 並回報于喬。不要為了繼續做而自行創造另一套規則。
 
-本地檢查一律必要。CI（持續整合，自動檢查）僅在演練後且使用者明確同意才導入；CD（持續部署）不是預設。
+## Git 怎麼使用
 
-GitHub 故障時，暫以每張 Ticket 一個本地檔案記錄，沿用相同識別與欄位；服務恢復後同步一次。不得讓本地與 GitHub 維持兩份分歧真相。
+一份子 PRD 用：**一條 branch + 一個 Draft Pull Request + 每張 Ticket 一個 commit**。
 
-正式開始前，四人須在獨立、可丟棄的非比賽 toy／sandbox repo，以小型假 child PRD 走完 spec、Tickets、認領、sessions、Draft PR、review、merge、demo，並記錄時間與 blocker；不得在本 planning repo 或 future competition implementation repo 演練。演練不得含比賽 product code、可重用 implementation、RL pipeline、Agent loop 或 reward logic。competition implementation workflow 仍須待官方 coding window 開始。此演練與全員角色確認尚未完成，不可宣稱四人已確認。
+這樣既不會為每張小票反覆開 branch，也能在子 PRD 完成前看見進度。遇到重要共用介面或整合點，先同步 `main`，由于喬快速確認。下游工作原則上等前置成果已 merge 並在 `main` 驗證後再開始。
 
-整體完成條件：所有 child PRD 都在同一份已整合的 `main` 為 Done、測試通過、demo 可用、fallback 已準備；林于喬核准整合，咏宸確認領域正確性。
+子 PRD 完成時，才做較完整關卡：完整測試、最後 AI review、owner 自查、于喬的架構與整合 review；高風險結果再由咏宸核對。通過後才正式 PR、merge，並在 merge 後驗收整合結果。AI 可以找問題，不能核准或 merge。
+
+## 新問題怎麼處理
+
+- 原本答應的功能做錯了，或少拆了一步：在原子 PRD 補一張 Ticket。
+- 文件內容模糊或彼此矛盾：停下來，請于喬澄清；題意問題請咏宸核對。
+- 真正多出一個可獨立交付的新功能：于喬新增一份子 PRD，再為它拆 Tickets。
+
+不要把每個小發現都開成新的子 PRD；否則房間會被切成太多碎片，最後沒人知道哪一份文件才是完整說明。
+
+## 開始前的短演練
+
+正式開始前，四人要在獨立、可丟棄的非比賽 toy／sandbox repo，用一個假的小子 PRD 演練：拆票、認領、開發、Draft PR、review、merge、demo。記錄花多少時間、卡在哪裡。
+
+演練 repo 不可放比賽產品程式、可重用實作、RL pipeline、Agent loop 或 reward logic；也不在本 planning repo 或未來競賽 repo 演練。CI 只在演練後且使用者明確同意才導入；CD 不列為預設。
+
+整體完成時，所有子 PRD 都必須在同一份 `main` 正常運作，測試、demo、fallback 均可用，並由于喬核准整合、咏宸確認結果合理。
