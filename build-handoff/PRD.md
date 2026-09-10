@@ -329,7 +329,7 @@ type 固定使用 `arrived`、`started`、`completed`、`expired`、`policy_chan
 
 ## 6. 驗收案例與證據
 
-驗收單元、子 PRD 相依與共同確認方式見 [ACCEPTANCE.md](ACCEPTANCE.md)，證據記於 [checklist.md](checklist.md)。本 PRD 全文定義必要行為，第 6 節是驗證方式而非唯一行為要求；案例不是逐項批准或勾選單位。
+完整驗收案例與共同確認方式見 [ACCEPTANCE.md](ACCEPTANCE.md)，整體與非功能關卡見 [checklist.md](checklist.md)。本 PRD 全文定義必要行為，第 6 節是驗證方式而非唯一行為要求；案例不是逐項批准或勾選單位。具體子 PRD 與 Ticket 拆分待團隊決定。
 
 ### 6.1 可手算的共同測試資料
 

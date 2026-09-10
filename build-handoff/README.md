@@ -1,6 +1,8 @@
 # 實作交接包
 
-此資料夾是規劃 repo 與未來比賽實作 repo 的唯一文件介面。唯一自足的產品規格是 [PRD.md](PRD.md)；[ACCEPTANCE.md](ACCEPTANCE.md) 定義驗收單元；`checklist.md` 記錄執行狀態與可檢查證據。`README.md`、`PRD.md`、`ACCEPTANCE.md` 與 `checklist.md` 四檔必須一起帶入新的實作 repo，且本資料夾內所有連結可獨立使用，不依賴規劃 repo 其他檔案。
+此資料夾是規劃 repo 與未來比賽實作 repo 的唯一文件介面。產品規則以 [PRD.md](PRD.md) 為準；[ACCEPTANCE.md](ACCEPTANCE.md) 保留完整驗收案例；[checklist.md](checklist.md) 管整體與非功能關卡。
+
+開賽後將本包的 `AGENTS.md`、`CONTEXT.md`、`ARCHITECTURE.md`、`WORKFLOW.md`、`README.md`、`PRD.md`、`ACCEPTANCE.md`、`checklist.md` 一起帶入新的實作 repo 根目錄，保留相對路徑。本包不依賴規劃 repo 的操作手冊、研究或個人檔案；後續以實作 repo 的文件與 GitHub 為準。
 
 使用者已授權把原始 PRD 正式遷入本交接包。規格版本應記錄驗證／凍結實際使用的 canonical Git commit；目前待提交後填入。`088ae4cdf7c9f6cbb439a70630bfff60c49d09d9` 只可作原根目錄完整 PRD 的歷史來源，不是本次遷移後的 canonical 版本。不要再將根目錄檔案、複製雜湊或 capture 日期當成權威。根目錄只作導向入口。
 
@@ -10,13 +12,13 @@
 
 ## 閱讀次序
 
-1. 讀 [PRD.md](PRD.md)：產品邊界、領域規則、UI、後端契約、驗收標準。
-2. 依本頁完成環境與開工檢查。
-3. 讀 [ACCEPTANCE.md](ACCEPTANCE.md)：五份子 PRD、相依與驗收案例。
-4. 用 [checklist.md](checklist.md) 記錄子 PRD 與整體關卡的狀態、實際結果及共同確認。
-5. 依本頁的 7 小時安排完成串接、驗收與 90 秒內部演練。
+1. 讀 [AGENTS.md](AGENTS.md) 的工作規則、[CONTEXT.md](CONTEXT.md) 的領域詞彙與 [ARCHITECTURE.md](ARCHITECTURE.md) 的責任及實作位置。
+2. 讀 [PRD.md](PRD.md)：產品邊界、UI、後端契約、驗收標準；依本頁核對環境。
+3. 讀 [ACCEPTANCE.md](ACCEPTANCE.md) 的完整案例與 [checklist.md](checklist.md) 的整體關卡。
+4. 依 [WORKFLOW.md](WORKFLOW.md) 開工、處理 blocker、完成與交接；`/compact` 自行判斷，不是必經步驟。
+5. 依下列時間安排完成串接、驗收與 90 秒內部演練。
 
-PRD 定義「何者必須達成」及接受標準；ACCEPTANCE 切分完整可驗功能；checklist 只記錄狀態與證據，三者均不另改寫或放寬 PRD。
+文件定義「何者必須達成」與驗收案例。具體子 PRD、owner、工作順序、相依與 GitHub issue／Ticket 的拆分，均待團隊決定；本包不預先建立名稱、編號、連結或相依圖。
 
 ## 環境與從零啟動
 
@@ -73,7 +75,7 @@ uv run --locked python -m ruff format --check .
 | 4.5–6.5 小時 | Metrics & Code、Library、Mock 流程、錯誤恢復與文件 | 接受／拒絕、Hybrid、code、來源標示與復原完整串接。 |
 | 6.5–7 小時 | 整體驗收、提交緩衝與 90 秒內部演練 | 必要驗收結果及阻礙已記錄；在 17:35 前完成提交，不延至截止後。 |
 
-分工採動態認領：未認領工作可自行登記；已有處理者或同檔修改時先協調。P01 先打通可見路徑，P02／P03／P05 依 P01，P04 的基本 metrics 依 P01、策略同步依 P03、錯誤呈現依 P05。詳見 [ACCEPTANCE](ACCEPTANCE.md)。
+分工採動態認領：未認領工作可自行登記；已有處理者或同檔修改時先協調。實際拆分、owner、工作順序與相依，須由團隊在開工時決定。
 
 作者可先自驗並記「待共同確認」；實測符合預期、至少另一隊員共同確認、審查通過且整份子 PRD 合併後才通過。案例不另設批准流程。合併與發布權限不變；所有子 PRD 通過後仍須在共同 main 做整體串接及全隊確認最終展示。
 

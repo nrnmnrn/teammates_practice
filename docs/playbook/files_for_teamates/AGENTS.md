@@ -1,5 +1,14 @@
 ## Behavior Principles
 
+> 本檔是通用範本，不適用於本 planning repo。競賽實作須使用完整 `build-handoff/`，不可只複製本檔；交接包已提供自足的精簡 `AGENTS.md`。
+
+## 承接與工作流程
+
+- 承接時讀 `CONTEXT.md`（純術語）、`ARCHITECTURE.md`（現有與預定狀態須明標）、`PRD.md` 與目前 Ticket。子 PRD 文件與父子 issues 僅在拆分計畫獲核可後依實作 repo 的實際路徑加入。
+- 開始、卡住、完成或換 session 時讀 `WORKFLOW.md`。交接包已提供上述檔與短版 `WORKFLOW.md`；複製本範本後依實作 repo 實際路徑調整。
+- 動態認領工作；每份子 PRD 通常 2 張、最多 3 張 Ticket；一次 session 只做一張可執行 Ticket。已有處理者或同檔修改時先協調。
+- 依 `WORKFLOW.md` 的流程入口選 skill；未獲明確核可不得 commit。已獲明確核可時可直接執行，不必重問。
+
 - Think before coding. State assumptions explicitly. If uncertain, ask.
 - Simplicity first. Minimum code that solves the problem. Nothing speculative.
 - Surgical changes. Touch only what you must. Clean up only your own mess.
@@ -8,12 +17,8 @@
 
 ## Commands
 
-- Install: `uv sync`
-- Run tests: `uv run pytest`
-- Run lint: `uv run ruff check .`
-- Run format check: `uv run ruff format --check .`
-- Type check: `uv run mypy .`            # 依專案替換: `uv run pyright`
-- Build: `uv build`
+- 依實作 repo 的 `pyproject.toml`、lockfile 與文件執行實際可用的 `uv` 命令。
+- 非程式文件變更只跑 `git diff --check`；不要跑測試、lint 或型別檢查。
 
 ## Boundaries
 
@@ -33,7 +38,7 @@
 
 ### 🚫 Never
 - Commit, view, or access secrets, API keys, or `.env` files.
-- For spec-only or non-code documentation changes : run git diff --check; do not run Ruff or Pytest.
+- For spec-only or non-code documentation changes: run `git diff --check`; do not run tests, lint, or type checks.
 - Force push to main/master.
 - Edit an already-applied migration.
 - Skip pre-commit hooks (`--no-verify`).

@@ -7,13 +7,13 @@
 - [ ] Codex CLI 可登入自己的帳號並完成一個無敏感資料的測試請求。
 - [ ] Python 及團隊選定的 package manager 可執行。
 - [ ] 能 clone 練習 repo、建立 branch、commit、push 和建立 Pull Request。
-- [ ] 已依 [Matt Pocock 官方安裝說明](https://github.com/mattpocock/skills)安裝團隊選定的 skills。
-- [ ] 已確認 skill manifest 的來源 commit，且比賽結束前不自行更新。
+- [ ] 團隊選定並完成驗證後，依 [Matt Pocock 官方安裝說明](https://github.com/mattpocock/skills)安裝需要的 skills。
+- [ ] 團隊完成驗證並凍結 manifest 後，記錄其來源 commit；凍結至比賽結束前不自行更新。
 - [ ] 未把任何 secrets 寫入 shell history、repo 或共用文件。
 
 ## Skills 版本紀錄
 
-9/8 確認後填寫：
+團隊完成驗證並決定凍結後填寫：
 
 | Skill | 用途 | 來源 commit | 四人驗證 |
 |---|---|---|---|
@@ -34,4 +34,3 @@
 - [ ] 知道 logs、outputs 與 checkpoints 存放位置。
 - [ ] 知道 GPU 忙碌、連線中斷與磁碟不足時要通知誰。
 - [ ] 確認個人 OpenAI 憑證沒有留在共用主機。
-
