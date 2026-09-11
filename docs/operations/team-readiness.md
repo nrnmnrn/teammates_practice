@@ -6,14 +6,14 @@
 |---|---|---|---|
 | 吳昊祁 | 研究生；Vibe Coding 經驗偏少 | 以第一次使用者角度驗證操作手冊 | 獨立完成練習 repo 流程 |
 | 許家紳 | 研究生；Vibe Coding 經驗偏少 | 以第一次使用者角度驗證操作手冊 | 獨立完成練習 repo 流程 |
-| 江咏宸（Neo） | 研究生；Vibe Coding 經驗稍多；熟悉 Gradio；題目構想者；論文與題目相關；可使用實驗室簡報模板 | 解釋原題目的研究背景；驗證 A6000；後續可負責簡報 | GPU 流程、研究假設、Gradio 基本展示流程與簡報環境 |
+| 江咏宸（Neo） | 研究生；Vibe Coding 經驗稍多；熟悉 Gradio；題目構想者；論文與題目相關；可使用實驗室簡報模板 | 解釋原題目的研究背景；後續可負責簡報 | 研究假設、Gradio 基本展示流程與簡報環境 |
 | 林于喬 | AI 工程師；一年以上 Vibe Coding 經驗；熟悉 AI coding engineering；隊長 | 文件 owner、Git 合併、操作流程品質與高風險改動 review | 確認其他成員可不靠口頭補充完成流程 |
 
 ## 共用準備門檻
 
 - [ ] 每人使用自己的 GitHub、Codex 與 OpenAI 憑證。
 - [ ] 每人完成一次 Issue → branch → test → implementation → review → Pull Request。
-- [ ] 需要 GPU 的成員完成 A6000 工作啟動、查看與停止。
+- [ ] 每人確認自己負責工作所需的環境與故障回報方式。
 - [ ] 每人知道遇到故障時的求助資訊格式與時間上限。
 - [ ] 9/11 全員完成交接包 rehearsal。
 
