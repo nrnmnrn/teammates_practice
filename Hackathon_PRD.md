@@ -1,6 +1,6 @@
 # Hackathon PRD 已遷移
 
-唯一權威 PRD 為 [build-handoff/PRD.md](build-handoff/PRD.md)。環境、安排、展示與交付操作見 [build-handoff/README.md](build-handoff/README.md)；驗收追蹤見 [build-handoff/checklist.md](build-handoff/checklist.md)。
+唯一權威 PRD 為 [build-handoff/PRD.md](build-handoff/PRD.md)。環境、安排、展示與交付操作見 [build-handoff/README.md](build-handoff/README.md)；驗收追蹤見 [build-handoff/ACCEPTANCE.md](build-handoff/ACCEPTANCE.md)。
 
 角色：未來實作者依 PRD 與 README 執行；驗收者依 checklist 留證；產品、organizer 依賴決策與團隊凍結仍待確認。
 
