@@ -45,13 +45,13 @@ Mock 候選可以被接受，但這只表示使用者選擇套用預寫策略，
 
 | 詞彙 | 定義 |
 | --- | --- |
-| Request／Job | 一筆可以被派工的訂單；兩個名稱指同一個領域物件。 |
+| Job | 一筆可以被派工的訂單；`Request` 是既有 PRD 的同義舊稱。 |
 | Arrival | 訂單進入可等待佇列的模擬時間。 |
 | Processing time | worker 完成訂單所需的已知工時。 |
 | Priority | 數值越大代表優先度越高。 |
 | Deadline | 訂單必須完成的模擬時間，為絕對時間而非倒數秒數。 |
 | Worker | 唯一處理者，每次只處理一筆，開始後不中斷。 |
-| Policy／Skill | 決定下一筆訂單的排程規則；技能庫中的 skill 對應一個可用 policy。 |
+| Policy | 決定下一筆 Job 的排程規則。產品 Skill 是技能庫中可查看、選擇與套用一個 Policy 的項目。 |
 | Run | 從初始化或重設到下一次重設之間的一局。 |
 
 所有時間單位為模擬秒，與影片秒數或電腦時鐘區分。數值必須有限；拒絕 NaN、Infinity、布林值冒充數字、非正工時，以及 `deadline <= arrival`。ID 必須非空且在同局唯一。
@@ -156,18 +156,18 @@ P95 使用線性插值：將 n 筆延遲排序，取索引 `0.95*(n-1)`，在相
 
 Mock 訊息與真實指標分開。中途切換不清空指標，不能把整局結果當成新策略的獨立改善證據。
 
-### 4.3 Skill Library 與 Mock adaptation
+### 4.3 Skill Library 與 Mock proposal
 
 技能下拉選單只改變預覽；按「套用技能」才走與 Arena 相同的切換流程。顯示名稱、規則、code、來源、使用次數與最近使用的模擬時間。使用次數定義為該策略實際派工的次數，不是點擊套用的次數。
 
-Arena 提供 Mock 區塊，狀態依序可為：
+Arena 提供 Mock proposal 區塊，狀態依序可為：
 
 - `idle`：尚未提出候選，接受／拒絕不可按。
-- `proposed`：展示預寫 Hybrid、規則與「示範候選，未經真實 evaluator 驗證」；接受／拒絕可按。
+- `proposed`：展示預寫 Hybrid Policy、規則與「示範候選，未經真實 evaluator 驗證」；接受／拒絕可按。
 - `accepted`：登錄 Hybrid 並套用，更新 code、差異、切換原因與技能庫。
 - `rejected`：維持原策略與技能庫內容；可再次提出候選。
 
-提出候選不切換策略、不編造評估分數。重複接受同一個已登錄 Hybrid 不新增重複 skill；只在 proposed 狀態接受／拒絕，否則回報明確錯誤。拒絕新提案不刪除先前已接受的 Hybrid；reset 才恢復四個基本 skills。
+提出 Mock proposal 不切換 Policy、不編造評估分數。重複接受同一個已登錄 Hybrid 不新增重複產品 Skill；只在 proposed 狀態接受／拒絕，否則回報明確錯誤。拒絕新提案不刪除先前已接受的 Hybrid；reset 才恢復四個基本產品 Skills。
 
 ## 5. 同程序 Python 後端契約
 
@@ -208,7 +208,7 @@ create_backend(
 | `generate(count)` | Snapshot | count 僅為整數 1 或 4，在 now 產生並注入。 |
 | `set_policy(id, reason="手動切換")` | Snapshot | 驗證 skill 存在，記錄實際切換，不中斷 running；同 policy 為無變更。 |
 | `snapshot()` | Snapshot | 無副作用，回傳與內部狀態分離的可序列化快照。 |
-| `list_skills()` | list[Skill] | 回傳同 run 可用 skills 與使用紀錄，讀取不改變狀態。 |
+| `list_skills()` | list[Skill] | 回傳同 run 可用產品 Skills 與使用紀錄；`Skill` 是產品 Skill 的 API 型別名，讀取不改變狀態。 |
 | `propose_candidate()` | Snapshot | 提出 Mock Hybrid 候選，記錄事件，不直接套用。 |
 | `resolve_candidate(accept)` | Snapshot | accept 必須為 bool；依 Mock 流程接受或拒絕。 |
 
@@ -275,11 +275,11 @@ JobInput 僅含前五欄；UI 不傳入狀態或完成時間。
 }
 ```
 
-### 5.5 Skill 與 Event
+### 5.5 產品 Skill 與 Event
 
-Skill 欄位為 `id`、`name`、`description`、`code`、`source`、`uses`、`last_applied_at`。source 使用 `base` 或 `mock`，與全頁的 team／local 資料來源是不同概念。uses 為非負整數；last_applied_at 記錄最近實際派工時間，未使用為 null。
+產品 Skill 的 API 型別名為 `Skill`，欄位為 `id`、`name`、`description`、`code`、`source`、`uses`、`last_applied_at`。source 使用 `base` 或 `mock`，與全頁的 team／local 資料來源是不同概念。uses 為非負整數；last_applied_at 記錄最近實際派工時間，未使用為 null。
 
-以下是與上方快照對應的單一 Skill 範例；`list_skills()` 還須包含其他可用策略：
+以下是與上方快照對應的單一產品 Skill 範例；`list_skills()` 還須包含其他可用策略：
 
 ```json
 {
@@ -314,7 +314,7 @@ type 固定使用 `arrived`、`started`、`completed`、`expired`、`policy_chan
 
 ### 5.7 例外與重試契約
 
-成功回傳前述 Snapshot／Skill；失敗以 Python 例外回報，不回傳外觀像成功的錯誤快照。相容層統一為兩種例外，均附可讀訊息：
+成功回傳前述 Snapshot／產品 Skill；失敗以 Python 例外回報，不回傳外觀像成功的錯誤快照。相容層統一為兩種例外，均附可讀訊息：
 
 | 例外 | 語意與 UI 處理 |
 | --- | --- |
@@ -367,10 +367,10 @@ type 固定使用 `arrived`、`started`、`completed`、`expired`、`policy_chan
 復刻版測試入口須接受 `--backend`、`--factory`，由共用 fixture 選擇 adapter，同一份契約案例分別執行。缺少隊友後端時 team 驗收應失敗，不得 skip 後宣稱整體通過。
 
 ```powershell
-conda run -n scheduler-ui python -m pytest -q --backend local
-conda run -n scheduler-ui python -m pytest -q --backend team --factory team_backend:create_backend
-conda run -n scheduler-ui python -m ruff check .
-conda run -n scheduler-ui python -m ruff format --check .
+.venv\Scripts\python.exe -m pytest -q --backend local
+.venv\Scripts\python.exe -m pytest -q --backend team --factory team_backend:create_backend
+.venv\Scripts\python.exe -m ruff check .
+.venv\Scripts\python.exe -m ruff format --check .
 ```
 
 ### 6.3 瀏覽器與完成定義
@@ -396,4 +396,4 @@ conda run -n scheduler-ui python -m ruff format --check .
 
 ## 9. 給 AI 實作者的交付指令
 
-完整交付指令移至 [實作交接包 README](README.md#給-ai-實作者的交付指令)。執行前先讀 [驗收清單](checklist.md)。
+完整交付指令移至 [實作交接包 README](README.md#給-ai-實作者的交付指令)。執行前先讀 [驗收](ACCEPTANCE.md)。
