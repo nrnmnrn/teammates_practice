@@ -1,0 +1,466 @@
+# Hackathon PRD：Gradio 排程輸送帶
+
+> **文件定位（以 [`docs/PRD.md`](../PRD.md) 為準）**：本文件是總 PRD 之下的可執行 UI 子 PRD，負責完整 Gradio Demo 的 UI、Simulator、Adapter、Metrics 與瀏覽器驗收；不再繼續拆分。產品目標、Agent orchestration、外部 Planner／Evaluator／Critic、sandbox 與 automatic adaptation 的總規格以 [`docs/PRD.md`](../PRD.md) 為準；若本文件較早的段落仍提到 Mock-only adaptation 或 User accept，以總 PRD 與本文末覆寫為準。
+
+> 用途：交給 AI coding agent 與隊友，在空專案中從零實作。
+> 工期：一名開發者搭配 AI，7–8 小時。
+> 完成條件：完整三個 tabs、真實排程與指標、Agent 自動 adaptation，且已接通隊友後端。離線 Mock 只供明確指定的開發／故障示範。
+> 本文件描述復刻版應達成的需求，不代表目前專案已實作所有串接功能。
+
+## 1. 產品目標與交付邊界
+
+### 1.1 要解決的問題
+
+讓評審與隊友看懂：訂單何時到達、為什麼等待、worker 如何按不同策略挑選訂單，以及完成或錯過期限如何影響結果。
+
+可以將系統想成一位店員處理多張有期限的訂單。上方等待帶表示時間壓力，下方處理路徑表示店員正在工作；店員每次只服務一筆訂單。
+
+三個畫面分別回答：
+
+- **Scheduling Arena**：現在發生什麼事？
+- **Metrics & Code**：整局結果如何？目前按什麼規則派工？
+- **Skill Library**：有哪些規則？如何查看與套用？
+
+### 1.2 必須交付
+
+- 本機可啟動的 Gradio 應用程式、依賴版本與啟動命令。
+- 隊友後端的相容 adapter、可明確選擇的本機模擬器，以及共用的契約測試。
+- 三個 tabs、五種策略、播放控制、SVG 動畫與 Agent adaptation 狀態／事件流程。
+- pytest、Ruff 與瀏覽器驗收紀錄；紀錄必須指出使用的後端來源。
+- README、`CONTEXT.md` 領域詞彙、後端串接文件與 UI 操作教學。
+- 一段可重複操作的 90 秒展示流程。
+
+**隊友於開工時提供可呼叫的同程序 Python 後端。只完成本機模擬器，不算完成整體交付。** 正式 Demo 必須標示並驗證實際使用的後端來源。
+
+### 1.3 不納入本版
+
+不執行未經 sandbox 驗證的動態產生 Python，不加入 Round Robin、搶占、worker failure、多 worker、登入系統或公開部署。正式 Demo 的外部 Planner／Evaluator／Critic 由 adapter 接入；離線開發才可明確使用 Mock。
+
+Demo mode 由 Agent 自動評估、重用或建立 Skill；User 不介入 policy switch。Hybrid 或其他新 Skill 只有通過 sandbox evaluator gate 才能啟用。Developer mode 的手動切換僅供測試，不代表正式展示流程。
+
+## 2. 環境與從零啟動方式
+
+採 Python 3.11 與 uv。`pyproject.toml` 固定包含執行期依賴 `gradio==6.26.0`、`plotly==7.0.0`，以及 `dev` 依賴群組中的 `pytest==9.1.1`、`ruff==0.16.6`；支援的 Python 範圍為 `>=3.11,<3.12`。
+
+在已安裝 uv 的 PowerShell 中：
+
+```powershell
+uv sync
+```
+
+uv 依 `.python-version` 使用 Python 3.11，並建立及管理專案本機的 `.venv`。先前的 Conda `scheduler-ui` 工作流已淘汰。專案指令不得寫死原開發者的帳號或絕對路徑。
+
+復刻版必須實作下列啟動入口；這些是交付要求，不是假設原專案已支援的 CLI：
+
+```powershell
+# 正式串接驗收：隊友提供可 import 的模組及 factory
+uv run python app.py --backend team --factory team_backend:create_backend
+
+# 明確選擇的開發／備援示範
+uv run python app.py --backend local
+```
+
+`team_backend:create_backend` 為約定的示例名稱，可透過 `--factory` 指定實際模組與函式。隊友須將模組放入專案可 import 的位置，或提供其安裝方式。`--backend` 必填；team 模式缺少 factory 或載入失敗時明確報錯，不自動轉為 local。
+
+預設綁定 `127.0.0.1:7860`、不建立公開分享連結，允許 `--port` 改埠。每個頁面持續顯示「資料來源：隊友後端」或「資料來源：本機備援」，以及「Planner／Evaluator：MOCK 示範」。
+
+## 3. 領域模型與排程規則
+
+### 3.1 基本定義
+
+| 詞彙 | 定義 |
+| --- | --- |
+| Request／Job | 一筆可以被派工的訂單；兩個名稱指同一個領域物件。 |
+| Arrival | 訂單進入可等待佇列的模擬時間。 |
+| Processing time | worker 完成訂單所需的已知工時。 |
+| Priority | 數值越大代表優先度越高。 |
+| Deadline | 訂單必須完成的模擬時間，為絕對時間而非倒數秒數。 |
+| Worker | 唯一處理者，每次只處理一筆，開始後不中斷。 |
+| Policy／Skill | 決定下一筆訂單的排程規則；技能庫中的 skill 對應一個可用 policy。 |
+| Run | 從初始化或重設到下一次重設之間的一局。 |
+
+所有時間單位為模擬秒，與影片秒數或電腦時鐘區分。數值必須有限；拒絕 NaN、Infinity、布林值冒充數字、非正工時，以及 `deadline <= arrival`。ID 必須非空且在同局唯一。
+
+### 3.2 生命週期與派工
+
+狀態為 `scheduled`（尚未到達）、`pending`（等待）、`running`（處理）、`completed`（成功）、`expired`（逾期丟棄）。後兩者為終態。
+
+worker 空閒時，只從已到達的 pending 訂單中，先篩選：
+
+```text
+now + processing_time <= deadline
+```
+
+再按以下排序選出第一筆：
+
+| Policy ID | 顯示名稱 | 由前到後比較，除 priority 外均為由小到大 |
+| --- | --- | --- |
+| `fifo` | FIFO | arrival、ID |
+| `sjf` | SJF | processing_time、arrival、ID |
+| `priority` | Priority | priority 由大到小、arrival、ID |
+| `edf` | EDF | deadline、arrival、ID |
+| `hybrid` | Hybrid | priority 由大到小、deadline、processing_time、arrival、ID |
+
+ID 平手排序使用字串字典序。不可行訂單繼續等待，直到 deadline 才丟棄；沒有合格訂單時 worker 閒置並顯示原因。
+
+同時刻事件順序固定為：**完成 → 丟棄逾期等待單 → 納入新到達單 → 派工**。恰好在 deadline 完成算成功。初始化與 reset 在 `t=0` 也處理到達及派工，所以暫停畫面可以已有 running 訂單，但工時尚未推進。
+
+切換 policy 不搶占目前工作，於下一次派工生效。輸入與工時精確已知，不增加額外運輸耗時。
+
+`advance(dt)` 必須處理整個區間內的所有事件，不能只在區間末端判斷。不同更新間隔不得改變選單結果、完成時間與指標。建議內部採用由十進位字串建立的 Decimal，避免累加小數造成 deadline 邊界錯誤；對外維持可 JSON 序列化的數字。
+
+### 3.3 場景、名額與重設
+
+- 預設 seed 為 42，初始八筆訂單。每個 adapter 有自己的隨機產生器，不共享全域 RNG。
+- 起始資料的生成規則可由各後端實作，但必須有效、可重現，且能在有限模擬時間內結束。不要求與原影片相同。
+- `generate(1)`、`generate(4)` 在目前時間加入訂單；產生規則須固定並記錄於串接文件。相同 seed、相同操作時間及操作序列應可重現相同結果。
+- 累計上限二十筆，包含尚未到達、處理中與已結束訂單。完成／回收不釋出名額。
+- 注入前先驗證整批。ID 衝突、資料無效、到達時間早於現在或超過名額時，整批拒絕，不消耗 RNG、不留下部分新增。
+- reset 建立新 run，恢復時間零、初始八筆、FIFO 與四個基本 skills，清除事件、指標歷史、策略差異、使用紀錄與 Mock 狀態。UI 暫停並將技能預覽回到 FIFO；播放倍速保留目前選擇。
+- 重現性比較排除 run ID、更新版本等識別資訊；不要求不同後端使用相同隨機資料。規則一致性用共用的明確測試資料驗證。
+
+## 4. UI 與互動需求
+
+### 4.1 Scheduling Arena
+
+使用 Gradio Blocks 控制項與單一 `gr.HTML` 動畫舞台。舞台內使用 SVG 表示輸送帶，JavaScript 只補已知快照間的動畫。保留深藍色舞台、清楚的文字對比、灰／綠／黃狀態色，不要求像素完全一致。
+
+桌面參考版面由上到下如下，其他 tabs 共用頁首與來源標籤：
+
+```text
+標題、說明、資料來源與 MOCK 標籤
+Arena | Metrics & Code | Skill Library
+播放 | 暫停 | 單步 +1 | 重設 | 倍速
+排程策略下拉選單 | 新增 1 筆 | Flash Sale 4 筆
+Mock 狀態、候選說明、提出／接受／拒絕
+深色舞台：策略／時間／名額 → 四張指標卡 → worker 狀態
+可捲動訂單列：左側 ID／P／工時；上方等待帶 → 垃圾桶
+                                      下方處理路徑 → EXIT
+本局完成／回收歷史
+```
+
+以 1440×900、瀏覽器 100% 縮放驗收；另在 1280×720 確認控制項可換行且不重疊。主頁可垂直捲動，訂單列區約 420 px 高並獨立捲動；不得出現整頁水平溢出或文字蓋住垃圾桶／EXIT。Metrics tab 依序為指標卡、三層趨勢圖、code、diff；Library 依序為選單、規則及來源紀錄、code、套用按鈕。
+
+上方控制區提供播放、暫停、單步 +1、重設、0.5×／1×／2×、排程策略下拉選單、新增一筆、Flash Sale 四筆。初始為暫停、1×。單步永遠推進一模擬秒，不乘倍速，並暫停連續播放以便觀察。
+
+舞台顯示目前策略、模擬時間、播放狀態、最近切換原因、本局名額、四張指標卡與 worker 狀態。按鈕本身是否為主色不能作為播放狀態的唯一依據。
+
+每筆未結束訂單一列，列上顯示 ID、P 優先度、工時與 deadline。排列順序為 running、pending、scheduled，再依 arrival、ID；此順序只為閱讀方便，不代表派工順序。超出舞台高度時內部捲動，不抽樣或隱藏訂單；更新時保留捲動位置。
+
+| 狀態／元素 | 視覺及文案 |
+| --- | --- |
+| scheduled | 灰色方塊停在起點，顯示「抵達倒數 X 秒」。 |
+| pending | 綠色方塊沿上方等待帶移動，顯示「可準時完成」或「已無法準時完成」。 |
+| running | 黃色方塊離開等待帶，經 worker／齒輪標記沿下方處理路徑前往 EXIT。 |
+| 等待帶終點 | 永久可見的垃圾桶 SVG 圖示，旁邊標示「截止 t=X」「截止後丟棄」。 |
+| completed／expired | 移出活動列，保留 ID、`EXIT ✓` 或「垃圾桶／回收」以及結束時間。 |
+| worker 閒置 | 顯示「目前沒有可派工訂單」並區分尚未到達、全部不可行或本局工作皆結束。 |
+
+等待位置為 `clamp((now-arrival)/(deadline-arrival), 0, 1)`；處理進度為 `clamp((now-started_at)/processing_time, 0, 1)`。不得用 priority 改變等待位置，也不得將動畫自身的到站判斷回寫為完成事件。
+
+使用約 200 ms 的單一更新來源；每次播放更新推進 `0.2 × speed` 模擬秒。實際觀看速度可能受機器負載影響，畫面 `t=` 才是權威時間。瀏覽器可用 requestAnimationFrame 在前後快照間短暫插值，禁止向未知未來外推。暫停停止連續推進與插值；切換 tab 不新增 timer，也不自動暫停。
+
+已結束所有訂單時不自動清局；仍可注入剩餘名額。若繼續播放，模擬時間繼續走，吞吐量可能下降。
+
+### 4.2 Metrics & Code
+
+所有卡片、圖表、策略名稱與 code 必須對應同一份已接受快照。
+
+| 指標 | 計算與顯示 |
+| --- | --- |
+| 完成數 | 本局 completed 的累計數，單位件。 |
+| 逾期數 | 本局 expired 的累計數，單位件。 |
+| 吞吐量 | `completed / (now / 60)`，單位件／模擬分鐘；`now=0` 為 None／「—」，`now>0` 且無完成時為零。 |
+| P95 完成延遲 | 只取 completed 的 `completed_at-arrival`，單位秒；空集合為 None／「—」。 |
+
+P95 使用線性插值：將 n 筆延遲排序，取索引 `0.95*(n-1)`，在相鄰值間插值；只有一筆時就是該值。卡片小數顯示至兩位，數量使用整數；測試比較原始值而非格式化文字。
+
+趨勢圖由上到下為完成／逾期數、吞吐量、P95，共用模擬秒的 X 軸。後端保存事件時間點的取樣，同時刻可合併為一點；UI 顯示最近六十個取樣及目前時間點。每個點的指標仍是整局累計，不是滑動視窗平均。
+
+唯讀 code 顯示實際執行的排序函式；明確說明可行性篩選由後端共用派工流程負責。由實際 callable 取得原始碼或提供與該版本綁定的靜態原始碼，不執行展示文字。策略差異顯示最近一次不同 policy 切換的 unified diff；尚未切換時顯示「尚無策略變更」。
+
+Mock 訊息與真實指標分開。中途切換不清空指標，不能把整局結果當成新策略的獨立改善證據。
+
+### 4.3 Skill Library 與 Mock adaptation
+
+技能下拉選單只改變預覽；按「套用技能」才走與 Arena 相同的切換流程。顯示名稱、規則、code、來源、使用次數與最近使用的模擬時間。使用次數定義為該策略實際派工的次數，不是點擊套用的次數。
+
+Arena 提供 adaptation 區塊，狀態依序可為：
+
+- `idle`：尚未觸發 adaptation。
+- `evaluating_existing`：Evaluator 正在測試現有 Skills。
+- `existing_skill_reused`：既有 Skill 通過，未建立新的 Candidate，並自動切換。
+- `evaluating_candidate`：所有既有 Skills 失敗，Planner 正在迭代 Candidate。
+- `registered`：Candidate 通過，已登錄並將於下一次 dispatch 使用。
+- `failed`：最多 5 個 Candidate 均失敗，維持原策略。
+
+指標惡化時必須先評估現有 Skills；只要有 Skill 通過，就不得提出新的 Candidate。只有全部既有 Skills 失敗時才建立 Candidate，最多 5 個版本；通過者自動登錄並啟用，失敗原因與 Critic feedback 必須保留。Demo mode 不提供 User accept；Developer mode 才保留手動切換測試。
+
+## 5. 同程序 Python 後端契約
+
+### 5.1 責任與 factory
+
+```text
+Gradio 控制項 → session controller → BackendAdapter → 隊友後端
+                            ↓
+                    一致快照 → 三個 tabs
+```
+
+UI 不得自行重新派工或重算一套權威 metrics。相容層負責將隊友物件、狀態名稱與例外轉為以下契約；不得以本機模擬器的結果冒充隊友結果。
+
+每次新瀏覽器 session 都呼叫一次 factory：
+
+```python
+create_backend(
+    seed: int = 42,
+    initial_jobs: list[dict] | None = None,
+) -> BackendAdapter
+```
+
+`initial_jobs=None` 建立八筆初始訂單；明確傳入清單時只使用該清單，`[]` 建立空場景。這個測試入口是讓本機與隊友後端共用驗收資料的必要能力。factory 完成初始化及 `t=0` 事件處理後回傳 adapter。
+
+隊友若不原生接受 initial_jobs，由相容層提供等效的測試場景初始化；不能跳過規則測試。factory 不回傳跨 session 共用的可變 singleton。UI 不以 deepcopy 複製含鎖或外部資源的隊友實例。
+
+### 5.2 公開方法
+
+下列為新 adapter 的統一回傳約定；現有後端若回傳 None，由相容層在成功後取得 snapshot 轉換。
+
+公開 Python API 的 number 僅接受內建 int 或 float，明確排除 bool、數字字串與 Decimal；隊友的 Decimal 等內部型別由相容層轉換。對外快照只包含 dict、list、str、bool、int、有限 float 與 None，禁止 NaN／Infinity。不得在回傳前為了顯示而四捨五入時間或 metrics；超過有限 float 可表示範圍、轉換後正工時變成零或 deadline／arrival 邊界失真的資料應拒絕。seed 為非負 int，排除 bool。
+
+| 方法 | 回傳 | 必要語意 |
+| --- | --- | --- |
+| `reset(seed=42)` | Snapshot | 新 run，恢復預設場景；不沿用測試用 initial_jobs。 |
+| `advance(dt)` | Snapshot | dt 為有限非負數，處理區間內全部事件；零不推進時間。 |
+| `inject(jobs)` | Snapshot | 接收 JobInput 清單，驗證後原子加入；當下到達者立即參與事件處理。 |
+| `generate(count)` | Snapshot | count 僅為整數 1 或 4，在 now 產生並注入。 |
+| `set_policy(id, reason="手動切換")` | Snapshot | 驗證 skill 存在，記錄實際切換，不中斷 running；同 policy 為無變更。 |
+| `snapshot()` | Snapshot | 無副作用，回傳與內部狀態分離的可序列化快照。 |
+| `list_skills()` | list[Skill] | 回傳同 run 可用 skills 與使用紀錄，讀取不改變狀態。 |
+| `evaluate_existing_skills(context)` | EvaluationResult[] | 以相同 workload、seed 與 evaluation window 評估既有 Skills。 |
+| `select_existing_skill(results)` | Skill | 依固定 metrics 順序選出通過的既有 Skill。 |
+| `propose_candidate(context, feedback)` | Candidate | 僅在所有既有 Skills 失敗後建立新版本。 |
+| `evaluate_candidate(candidate_id, baseline_run)` | EvaluationResult | 在 sandbox 執行並回傳通過／失敗與 Critic feedback。 |
+| `register_skill(candidate_id)` | Skill | 僅註冊通過 evaluator 的 Candidate。 |
+| `activate_skill(skill_id)` | Snapshot | 自動設定下一次 dispatch 使用的 Skill。 |
+
+### 5.3 JobInput 與 Job
+
+| 欄位 | 型別／值 | 語意 |
+| --- | --- | --- |
+| `id` | str | 同 run 唯一、非空 ID。 |
+| `arrival` | number | 非負模擬秒；注入時不可早於 now。 |
+| `processing_time` | number | 正的已知工時。 |
+| `priority` | number | 有限數值，越大越優先。 |
+| `deadline` | number | 模擬秒，必須大於 arrival。 |
+| `status` | 狀態字串 | 僅 Job 快照包含，由後端決定。 |
+| `started_at` | number 或 null | 尚未派工為 null。 |
+| `completed_at` | number 或 null | 只有 completed 有值。 |
+| `dropped_at` | number 或 null | 只有 expired 有值。 |
+| `feasible` | bool 或 null | pending 用 now＋工時判斷；running 用開始時間＋工時判斷；scheduled 與終態為 null。 |
+
+JobInput 僅含前五欄；UI 不傳入狀態或完成時間。
+
+### 5.4 Snapshot
+
+| 欄位 | 型別／必要內容 |
+| --- | --- |
+| `run_id` | str，每次 reset 改變，不作排程 tie-break。 |
+| `time` | number，目前模擬秒。 |
+| `jobs` | list[Job]，包含本局全部工作。 |
+| `worker` | job_id 為 str 或 null；state 為 `idle` 或 `running`；reason 為 str。 |
+| `policy` | `{id, name, code, previous_code, reason}`；無前一份 code 時使用空字串。 |
+| `metrics` | completed、expired 為 int；throughput、p95_latency 為 number 或 null。 |
+| `events` | list[Event]，本局有序事件。 |
+| `series` | list，欄位為 time 與四個 metrics；依模擬時間排序。 |
+| `adaptation` | stage、message 為 str；candidate_id 為 str 或 null；stage 使用第 4.3 節定義。 |
+| `capacity` | `{total: int, limit: 20, remaining: int}`，remaining = limit − total。 |
+
+以下是「明確注入一筆測試資料」於時間零的完整快照範例，不是八筆初始場景：
+
+```json
+{
+  "run_id": "run-example",
+  "time": 0,
+  "jobs": [
+    {
+      "id": "A", "arrival": 0, "processing_time": 2,
+      "priority": 3, "deadline": 3, "status": "running",
+      "started_at": 0, "completed_at": null, "dropped_at": null,
+      "feasible": true
+    }
+  ],
+  "worker": {"job_id": "A", "state": "running", "reason": "FIFO 選中可準時完成的訂單"},
+  "policy": {
+    "id": "fifo", "name": "FIFO",
+    "code": "def fifo_key(job):\n    return (job.arrival, job.id)\n",
+    "previous_code": "", "reason": "初始策略"
+  },
+  "metrics": {"completed": 0, "expired": 0, "throughput": null, "p95_latency": null},
+  "events": [
+    {"seq": 1, "time": 0, "type": "arrived", "job_id": "A", "policy_id": null, "message": "訂單到達"},
+    {"seq": 2, "time": 0, "type": "started", "job_id": "A", "policy_id": "fifo", "message": "開始處理"}
+  ],
+  "series": [{"time": 0, "completed": 0, "expired": 0, "throughput": null, "p95_latency": null}],
+  "adaptation": {"stage": "idle", "message": "尚未提出 Mock 候選", "candidate_id": null},
+  "capacity": {"total": 1, "limit": 20, "remaining": 19}
+}
+```
+
+### 5.5 Skill 與 Event
+
+Skill 欄位為 `id`、`name`、`description`、`code`、`source`、`uses`、`last_applied_at`。source 使用 `base` 或 `mock`，與全頁的 team／local 資料來源是不同概念。uses 為非負整數；last_applied_at 記錄最近實際派工時間，未使用為 null。
+
+以下是與上方快照對應的單一 Skill 範例；`list_skills()` 還須包含其他可用策略：
+
+```json
+{
+  "id": "fifo", "name": "FIFO", "description": "先到先服務",
+  "code": "def fifo_key(job):\n    return (job.arrival, job.id)\n",
+  "source": "base", "uses": 1, "last_applied_at": 0
+}
+```
+
+Event 欄位為 `seq`（同 run 遞增整數）、`time`（模擬秒）、`type`、`job_id`、`policy_id`、`message`。沒有相關 ID 時用 null。
+
+type 固定使用 `arrived`、`started`、`completed`、`expired`、`policy_changed`、`candidate_proposed`、`candidate_accepted`、`candidate_rejected`。reset 以新 run 與清空事件表表示，不將舊 run 事件帶入。
+
+```json
+{
+  "seq": 7, "time": 4, "type": "policy_changed",
+  "job_id": null, "policy_id": "edf", "message": "技能庫套用"
+}
+```
+
+### 5.6 Session、舊回應與失敗處理
+
+- 每個 session 的 controller 持有唯一 adapter，所有更新與控制共用序列化入口；一次只執行一個修改操作。
+- controller 在每次成功操作後讀取 snapshot 與 skills，組成一份 UI 更新。讀取必須落在同一個序列化區間，不能讓三個 tabs 各自推進或抓到不同狀態。
+- UI envelope 加上 `session_generation`、`revision`、`backend_source`、`playing`、`speed`、`error`；這些是呈現控制資訊，不取代後端 run_id。
+- revision 在同一 session 內單調遞增，reset 不歸零。成功 reset 更新 generation 及 run_id，取消舊插值；排入舊 generation 的 timer／操作結果不得套用到新 run。
+- 前端只接受目前 generation、run_id 與非過時 revision 的一致更新；防護涵蓋舞台、metrics、code 與選單，不能只擋 SVG。
+- 驗證失敗與後端修改操作失敗應保持原狀，由後端／相容層保證原子性。UI 不假設對隊友實例 deepcopy 就能回滾外部效果。
+- 一般錯誤顯示「操作未完成，已暫停；保留最後有效畫面」。保留錯誤 log，提供「重新取得狀態」及「重設」。重新取得狀態只呼叫讀取方法，避免重送注入造成重複訂單。
+- 若後端無法保證失敗後未修改，保留畫面並標示狀態待確認，先重新同步／重設，禁止盲目重試原修改命令。若第一次初始化就失敗，顯示連線錯誤空畫面，不捏造初始快照。
+- 更換 team／local 來源需明確重新啟動對應模式並開始新 session，不承接或混合上一個來源的 metrics。
+
+### 5.7 例外與重試契約
+
+成功回傳前述 Snapshot／Skill；失敗以 Python 例外回報，不回傳外觀像成功的錯誤快照。相容層統一為兩種例外，均附可讀訊息：
+
+| 例外 | 語意與 UI 處理 |
+| --- | --- |
+| `AdapterValidationError(ValueError)` | 輸入或操作狀態不合法；jobs、RNG、events 與後端時間完全不變。顯示原因，使用者修正後可再操作。 |
+| `AdapterOperationError(RuntimeError)` | 後端執行／讀取失敗；包含 `state_uncertain: bool`。只有後端能證明未修改時才設 False；預設 True，須重新同步／重設後再接受修改。 |
+
+未分類的後端例外與「修改成功、後續讀取失敗」均視為狀態不明。controller 捕捉、記錄並暫停，不將堆疊內容當成使用者說明。失敗更新也取得新的 UI revision，使錯誤畫面能覆蓋舊播放畫面；被丟棄的過時回應不再更新 UI。
+
+驗證失敗或可證明已回滾的操作不新增領域事件。狀態不明時，不假設後端事件沒有改變；重新同步後以後端實際事件為準，且不得自動重送上一筆修改。
+
+## 6. 驗收案例與證據
+
+### 6.1 可手算的共同測試資料
+
+以下案例在 local 與 team adapter 上都必須通過。用 factory 的 initial_jobs 建立獨立場景，不依賴隨機生成的八筆訂單。
+
+**案例 A：基本策略。** 四筆都在 t=1 到達，在 t=0 選好策略後推進到 t=1：
+
+| ID | arrival | processing_time | priority | deadline |
+| --- | --- | --- | --- | --- |
+| A | 1 | 6 | 2 | 25 |
+| B | 1 | 2 | 1 | 12 |
+| C | 1 | 4 | 5 | 18 |
+| D | 1 | 3 | 3 | 9 |
+
+預期首筆：FIFO=A、SJF=B、Priority=C、EDF=D、Hybrid=C。測 Hybrid 時先在 t=0 提案並接受。
+
+**案例 B：deadline 與同時刻順序。** A=(arrival 0, 工時 2, deadline 2)、B=(0, 3, 2)、C=(2, 1, 4)，priority 都為 1。t=0 派 A；t=2 依序完成 A、丟棄 B、到達 C、派 C。B 從未開始；C 在 t=3 完成。
+
+**案例 C：metrics。** FIFO；A=(0, 2, 10)、B=(0, 4, 10)，priority 都為 1。A 在 t=2 完成，B 在 t=6 完成；完成延遲為 [2, 6]。t=6 時完成 2、逾期 0、吞吐量 20 件／分鐘、P95=5.8 秒。繼續推進到 t=12 而不新增，吞吐量為 10，P95 仍為 5.8。
+
+**案例 D：不搶占。** A 在 t=0 開始、工時 5、deadline 20；B、C 在 t=1 到達，工時分別 4、1，deadline 都為 20。在 t=1 切到 SJF，A 仍於 t=5 完成，下一筆選 C。
+
+### 6.2 pytest 必要覆蓋
+
+- [ ] 案例 A–D；每種策略的 arrival／ID 平手，Hybrid 的 priority、deadline、工時逐級比較。
+- [ ] 不可行訂單保留到 deadline；沒有合格工作時閒置；恰好 deadline 完成成功。
+- [ ] 大步 advance 與整數／小數分段 advance 的最終 jobs、事件順序與 metrics 相同；包含工時 0.3、以 0.1 分段的邊界。
+- [ ] 零時間吞吐量為 None；正時間無完成為零；無完成 P95 為 None；單筆與多筆 P95 正確。
+- [ ] 相同 seed 與操作序列可重現；失敗注入不改 RNG、jobs 或 events。
+- [ ] 20 筆上限；剩餘三名額不能加入四筆；終態不釋出名額。
+- [ ] 無效數值、布林值、零／負工時、重複 ID、過去 arrival、未知 policy、無效 count、負 dt 均明確拒絕。
+- [ ] Mock 提案不切策略，接受登錄 Hybrid，拒絕保持策略；reset 移除 Hybrid 並清理歷史。
+- [ ] Arena 與 Library 共用切換；僅預覽不切換；正在執行工作不中斷。
+- [ ] 兩個 factory 實例互不影響；snapshot 為防禦性副本；序列化成功。
+- [ ] controller 暫停、倍速、單步、reset、舊 generation／revision 拒收與例外恢復。
+- [ ] API 拒絕數字字串、Decimal 與 bool；輸出為有限 JSON 數值。驗證例外保持後端與 RNG 不變；狀態不明例外阻止重送，成功同步後才恢復操作。
+- [ ] team adapter 真的呼叫隊友後端；team 載入失敗不 fallback；驗收輸出包含後端來源。
+
+復刻版測試入口須接受 `--backend`、`--factory`，由共用 fixture 選擇 adapter，同一份契約案例分別執行。缺少隊友後端時 team 驗收應失敗，不得 skip 後宣稱整體通過。
+
+```powershell
+uv run pytest -q --backend local
+uv run pytest -q --backend team --factory team_backend:create_backend
+uv run ruff check .
+uv run ruff format --check .
+```
+
+### 6.3 瀏覽器與完成定義
+
+- [ ] team 模式下三個 tabs 可使用，資料來源與 Mock 標籤始終可見。
+- [ ] 灰色等待到達、綠色等待 deadline、黃色處理到 EXIT、回收與歷史紀錄符合後端狀態。
+- [ ] 播放、暫停、單步、三段倍速、重設及注入名額正常；切 tab 不重複推進。
+- [ ] 二十筆資料全部可查看，畫面更新保留捲動位置；基本桌面視窗可讀，不要求手機像素對齊。
+- [ ] 策略、code、diff、Library、指標卡與圖表同步；reset 後舊回應不回灌。
+- [ ] 可在暫停時閱讀數值；全局結束後繼續播放造成吞吐量下降屬預期。
+- [ ] 以可控制的失敗 adapter 驗證錯誤文案、保留畫面與重新同步；另確認真實 team 模式沒有默默降級。
+- [ ] 90 秒流程在 team 模式走通，並留下測試輸出、操作紀錄及必要截圖。
+
+**完成定義：所有必要功能與驗收通過、真實 team 串接已證實、文件足以讓隊友重啟。未通過的項目必須列出，不以畫面看起來可動代替契約驗證。**
+
+## 7. 7–8 小時實作與串接安排
+
+| 時間 | 工作 | 可確認的完成條件 |
+| --- | --- | --- |
+| 0–1 小時 | 環境、隊友 factory、HTML 動畫最小切片 | team 模式 reset、snapshot、advance 可呼叫；畫面能顯示回傳狀態。 |
+| 1–2.5 小時 | 契約凍結、相容層、本機對照模型、核心測試 | 基本策略、邊界、事件與 metrics 在兩種 adapter 通過；明列隊友接口差異。 |
+| 2.5–4.5 小時 | Arena、控制項、動畫、注入與 session 管理 | 以 team 資料播放、暫停、切換策略與注入；列與歷史正確。 |
+| 4.5–6 小時 | Metrics & Code、Library、Agent adaptation | existing Skill reuse、Candidate 迭代、註冊／啟用、code 與來源標示完整串接。 |
+| 6–8 小時 | 全面驗收、錯誤恢復、文件、demo 排練 | pytest／Ruff 與瀏覽器驗收完成，90 秒展示走通。 |
+
+角色分工：開發者負責 UI、controller、相容層、測試與整合；隊友負責提供可 import 的完整排程後端、契約所需能力及後端缺陷修正。AI 按里程碑逐段實作、執行驗證與回報問題。
+
+開工檢查即確認隊友的模組名稱、factory、依賴及一個可呼叫範例。若未提供，立即記錄為阻礙，繼續以 local 開發可獨立工作，但不得更改「必須接通 team」的完成條件。進度落後時先減少裝飾與排版微調，不刪減 tabs、動畫、策略、Mock 或必要驗收。
+
+## 8. 90 秒展示腳本
+
+| 展示時間 | 操作與說明 |
+| --- | --- |
+| 0–15 秒 | 顯示「資料來源：隊友後端」及 Mock 標籤，重設並播放。說明一個 worker、三種方塊狀態。 |
+| 15–30 秒 | Flash Sale 加四筆，說明等待帶表示期限消耗、不可行工作會留到截止才回收。 |
+| 30–45 秒 | 展示 Evaluator 評估既有 Skills；若全部失敗，展示 Planner 的 Candidate 與 Critic feedback。 |
+| 45–60 秒 | 展示 evaluator 通過、自動註冊與下一次派工使用新 Skill；目前工作不中斷。 |
+| 60–75 秒 | 暫停，切 Metrics & Code，展示實際 code、差異及累計指標；不宣稱 Hybrid 必然改善。 |
+| 75–90 秒 | 開啟 Skill Library 查看 Hybrid，說明預覽與套用差別，完成展示。 |
+
+排練時固定注入的模擬時間及操作序列，確保切換後仍有可派工訂單；這是展示腳本的可重現性要求，不要求與原影片使用相同訂單或得出相同數值。
+
+## 9. 給 AI 實作者的交付指令
+
+依本文件從空專案實作，不需要原始碼或影片。先取得 team factory 並完成最小串接，再建立共用契約測試與本機對照 adapter，之後依里程碑完成 UI。不要先把所有畫面綁死本機 simulator，最後才嘗試串接。
+
+交付說明需列出安裝／啟動方式、實際後端 factory、資料生成規則、已執行驗收及結果、仍有阻礙的項目。若隊友後端未就緒，清楚區分「本機 demo 可用」與「team 串接未完成」。
+
+本 PRD 不以程式行數、原專案測試數量、影片中的六件完成／兩件逾期，或像素級外觀相同作為成功標準；以本文件的行為、串接與驗收條件為準。
+
+## 與總 PRD 的一致性覆寫
+
+本子 PRD 的 UI 與 Simulator 細節仍然有效，但以下規則取代較早的 Mock-only 或人工接受描述：
+
+- 正式 Demo 使用完整 Agent adaptation 閉環。指標惡化後先由 Evaluator 在隔離 sandbox 評估所有已驗證 Skills；若已有 Skill 通過，直接重用且不建立 Candidate。
+- 只有所有既有 Skills 都未通過時，Planner 才能建立 Candidate；Candidate 最多迭代 5 版，Critic feedback 必須保留。通過 evaluator 的 Candidate 自動註冊並自動啟用，User 不按 Accept。
+- Demo mode 不顯示或不啟用手動 policy dropdown 與手動套用；Developer mode 才提供這些控制供測試。
+- 正式 Demo 的 Planner、Evaluator、Critic 可透過 provider-neutral adapter 接入外部服務。外部服務失效時必須停止 adaptation 並顯示錯誤；只有明確指定的離線 Mock mode 才能使用 Mock，且 UI 必須標示資料來源。
+- Hybrid 不是初始 Skill。它或其版本只有通過 evaluator 後才加入 Skill Library；Reset 恢復 FIFO、SJF、Priority、EDF 四個初始 Skills。
+- `Hackathon_DEMO_UI_PRD.md` 不再以「接受／拒絕 Candidate」作為正式驗收步驟；保留的相關 UI 控制只能屬於舊版或 Developer mode 相容測試，實作時以 `docs/PRD.md` 的 automatic registration／activation 為準。
+
+子 PRD 的完成條件因此是：Gradio 三個 tabs、Simulator、可替換 adapter、分層 metrics、動畫與瀏覽器驗收均可接上總 PRD 定義的 Agent 狀態與事件。
