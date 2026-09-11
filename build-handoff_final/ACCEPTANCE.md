@@ -10,12 +10,12 @@
 
 | ID | 總 PRD需求 | 負責子 PRD | 驗收證據 | 結果／日期／驗收者 |
 | --- | --- | --- | --- | --- |
-| R01 | Job 驗證、狀態、單 worker、不可搶占、deadline 與同時刻事件順序正確。 | SP-01 | 可手算 Policy／deadline 案例與契約測試。 | 待填 |
-| R02 | FIFO、SJF、Priority、EDF 排序與 tie-break 正確；Hybrid 未通過 gate 前不是初始 Skill。 | SP-01 | 五種 Policy 的 deterministic 測試；reset 的初始 Skill 檢查。 | 待填 |
+| R01 | Job 驗證、狀態、單 worker、不可搶占、deadline 與同時刻事件順序正確。 | SP-01 | 後端契約共同 deterministic fixtures B、D 與契約測試。 | 待填 |
+| R02 | FIFO、SJF、Priority、EDF 排序與 tie-break 正確；Hybrid 未通過 gate 前不是初始 Skill。 | SP-01 | 後端契約共同 deterministic fixture A、tie-break 測試與 reset 初始 Skill 檢查。 | 待填 |
 | R03 | `advance` 切分一致；seed、注入、20 筆上限與 reset 可重現且原子。 | SP-01 | 大步／分段、RNG、無效批次、名額、reset 測試。 | 待填 |
-| R04 | 三個 tabs、Arena 控制、動畫、Metrics & Code、初始 Skill Library 同一 Snapshot 且可讀。 | SP-01 | controller／revision 測試；1440×900、1280×720 瀏覽器證據。 | 待填 |
+| R04 | 三個 tabs、Arena 控制、動畫、Metrics & Code、初始 Skill Library 同一 Snapshot 且可讀。 | SP-01 | controller／revision／單一更新來源測試；初始控制狀態、捲動保留、1440×900、1280×720 瀏覽器證據。 | 待填 |
 | R05 | Demo mode 只允許播放、暫停、單步、reset、倍速與 workload；Developer mode 才可手動套用已驗證 Skill。 | SP-01 | 兩種 mode 的控制可見性與操作測試。 | 待填 |
-| R06 | provider-neutral 的 team backend 與外部 Agent adapter 可用，或明確標示為 local／Mock；team 載入失敗不 fallback。 | SP-01、SP-03 | `--backend team --factory`、外部 adapter、Mock 標示與失敗 factory 的啟動／整合證據。 | 待填 |
+| R06 | provider-neutral 的 team backend 與外部 Agent adapter 可用，或明確標示為 local／Mock；team 載入失敗不 fallback。 | SP-01、SP-03 | Python／uv 環境、契約指定 CLI、`--backend team --factory`、外部 adapter、Mock 標示與失敗 factory 的啟動／整合證據。 | 待填 |
 | R07 | trigger 未成立不 adaptation；成立後以相同 baseline 評估所有已驗證 Skills。 | SP-02 | trigger、相同 workload／seed／state／window、sandbox fixture 測試。 | 待填 |
 | R08 | 目前或其他既有 Skill 通過時，依固定順序重用，自動於下次 dispatch 啟用，不建立 Candidate。 | SP-02 | 目前 Skill、多 Skill tie-break、無 Planner／Candidate、running Job 保留測試。 | 待填 |
 | R09 | UI 顯示 degradation、既有 Skill 比較、選擇原因、`existing_skill_reused` 與 `policy_activated`。 | SP-02 | 同一 Snapshot 的 event、metrics、瀏覽器證據。 | 待填 |

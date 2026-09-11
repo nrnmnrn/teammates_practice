@@ -2,6 +2,32 @@
 
 本契約定義 implementation repository 中 UI、scheduler、sandbox 與 Agent adapter 的共同邊界。若與 [總 PRD](../../PRD.md) 衝突，以總 PRD 為準；若子 PRD 對自己的直接依賴提出更嚴格要求，以子 PRD 為準。本文件不決定 LLM 供應商、部署方式或實作類別。
 
+## 環境與啟動契約
+
+- 使用 Python 3.11 與 uv；支援範圍為 `>=3.11,<3.12`。`pyproject.toml` 固定包含 `gradio==6.26.0`、`plotly==7.0.0`，以及 dev dependency group 的 `pytest==9.1.1`、`ruff==0.16.6`。
+- 以 `uv sync` 建立環境；命令不得寫死個人帳號或絕對路徑。
+- `--backend` 必填。team mode 必須提供 `--factory module:function`；缺少、無法 import 或 factory 建立失敗時須明確退出，不得 fallback 到 local。
+- local mode 只供明確選擇的開發或備援。正式串接與本機啟動入口如下：
+
+```text
+uv run python app.py --backend team --factory team_backend:create_backend
+uv run python app.py --backend local
+uv run python app.py --backend local --mode developer
+```
+
+Demo mode 是預設；`--mode developer` 才顯示手動套用已驗證 Skill 等測試控制，且不放寬 `--backend` 要求。
+
+- 預設只綁定 `127.0.0.1:7860`，不建立公開分享連結；可用 `--port` 改埠。
+- 每頁持續顯示 `資料來源：隊友後端` 或 `資料來源：本機備援`；外部 Planner／Evaluator／Critic 使用 Mock 時亦須持續顯示 `MOCK 示範`。
+- 共用測試入口須接受相同的 `--backend`、`--factory`：
+
+```text
+uv run pytest -q --backend local
+uv run pytest -q --backend team --factory team_backend:create_backend
+```
+
+缺少 team backend 時，team 驗收必須失敗，不得以 skip 或 local 結果宣稱 team mode 通過。
+
 ## 共同規則
 
 - 同程序 Python factory：`create_backend(seed: int = 42, initial_jobs: list[dict] | None = None) -> BackendAdapter`。每個瀏覽器 session 呼叫一次；不得回傳共享的可變 singleton。
@@ -70,6 +96,8 @@ segments, events, series, adaptation, capacity
 - `adaptation`：`stage`、`message`、`adaptation_id`、`candidate_id`。
 - `capacity`：`total`、固定 `limit=20`、`remaining`。
 
+`adaptation.stage` 至少支援 `idle`、`evaluating_existing`、`existing_skill_reused`、`evaluating_candidate`、`registered`、`failed`。stage 只描述已發生或正在執行的流程；UI 不可自行推測下一狀態。
+
 Event 至少有 `seq`、`time`、`type`、`job_id`、`policy_id`、`candidate_id`、`message`。必要類型為排程事件 `arrived`、`started`、`completed`、`expired`，以及 `existing_skill_reused`、`candidate_proposed`、`candidate_evaluated`、`skill_registered`、`policy_activated`、`adaptation_failed`。無關 ID 用 null。
 
 `policy_activated`、Job 的 Policy／segment 記錄與 segment metrics 是既定產品需求。是否另為每種 adapter 失敗建立領域 Event，以及錯誤後提供何種重試提示與時機，尚待決定；目前已確認的行為只有停止 adaptation、保留最後有效 Snapshot 並顯示錯誤。
@@ -82,6 +110,27 @@ Event 至少有 `seq`、`time`、`type`、`job_id`、`policy_id`、`candidate_id
 - Candidate evaluation：各 Candidate 版本的 sandbox 結果。
 
 throughput 為 `completed / (time / 60)`；時間為零時為 null。P95 只用 completed Jobs 的 `completed_at - arrival`，空集合為 null，採線性插值。卡片可四捨五入顯示，測試比較原始值。
+
+### 共同 deterministic fixtures
+
+local 與 team adapter 必須以 factory 的 `initial_jobs` 建立下列獨立場景並得到相同預期；不得依賴預設隨機 Jobs。
+
+**案例 A：基本 Policy。** 四筆 Job 均在 `t=1` 到達；於 `t=0` 選定已驗證 Policy，再推進至 `t=1`。
+
+| ID | arrival | processing_time | priority | deadline |
+| --- | --- | --- | --- | --- |
+| A | 1 | 6 | 2 | 25 |
+| B | 1 | 2 | 1 | 12 |
+| C | 1 | 4 | 5 | 18 |
+| D | 1 | 3 | 3 | 9 |
+
+預期首筆為 FIFO=A、SJF=B、Priority=C、EDF=D、Hybrid=C。Hybrid 測試使用已通過 gate 並依契約註冊的固定 Candidate；不得加入 Demo mode 的人工 accept。
+
+**案例 B：deadline 與同時刻順序。** A=`(arrival=0, processing_time=2, priority=1, deadline=2)`；B=`(0,3,1,2)`；C=`(2,1,1,4)`。`t=0` 派 A；`t=2` 依序完成 A、丟棄 B、納入 C、派 C。B 不得開始；C 於 `t=3` 完成。
+
+**案例 C：metrics。** FIFO；A=`(arrival=0, processing_time=2, priority=1, deadline=10)`；B=`(0,4,1,10)`，欄位順序同 A。A 於 `t=2`、B 於 `t=6` 完成。`t=6` 時 completed=2、expired=0、throughput=20、P95=5.8；不新增 Job 而推進至 `t=12` 時 throughput=10、P95 仍為 5.8。
+
+**案例 D：不搶占。** A 於 `t=0` 開始，processing time=5、deadline=20；B、C 於 `t=1` 到達，processing time 分別為 4、1，priority 均為 1、deadline 均為 20。`t=1` 切至 SJF；A 仍於 `t=5` 完成，下一筆選 C。
 
 ## Session 與錯誤
 

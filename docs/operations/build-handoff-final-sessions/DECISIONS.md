@@ -30,6 +30,10 @@
 - 子 PRD 完成須包含整體功能驗收、測試、AI review、Owner 自查、另一位成員確認、正式 PR merge 及 `main` 整合驗收。另一位確認者不預先指定。
 - AO-001 至 AO-010 留在 `build-handoff_2/` 作參考，不搬入 final。
 
+## 待產品決定
+
+重複 adaptation trigger、跨 Policy Job 的 segment metrics 歸屬、額外 Skill metadata，以及外部錯誤 event／重試 UI，整理於 [產品決策簡報](PRODUCT-DECISION-BRIEF.md)，待咏宸逐題決定。該簡報只提出選項與影響，不是產品權威；決定寫回總 PRD、相關子 PRD、後端契約與驗收矩陣後，才可作為實作基準。
+
 ## 子 PRD 候選
 
 目前較合理的四個候選為：

@@ -9,6 +9,7 @@
 | 比賽當日認領子 PRD、建立工作單 | [workflow.md](workflow.md)、已核可子 PRD、[parent issue 模板](templates/parent-issue.md)、[Ticket 模板](templates/ticket.md) | 認領人、唯一 branch／Draft PR、parent issue 與 Ticket 如何建立？ |
 | 開始或續做一張 Ticket | [workflow.md](workflow.md)、完整子 PRD、目前 Ticket、parent issue、直接依賴的 `main` 證據 | 此次唯一工作、開始條件、驗收與下一步是什麼？ |
 | 修改或使用跨功能介面 | 對應的 `docs/contracts/*.md`、相關子 PRD、[PRD.md](PRD.md) | 介面約定、相容範圍與整合證據是什麼？ |
+| 從零建立環境、啟動 UI 或選擇 team/local backend | [後端契約](docs/contracts/backend-contract.md)、[Scheduling Arena 子 PRD](sub-PRDs/scheduling-arena.md) | Python／uv 版本、啟動參數、factory、來源標示及失敗規則是什麼？ |
 | 準備子 PRD 審查、merge 或結案 | [workflow.md](workflow.md)、完整子 PRD、parent issue、[ACCEPTANCE.md](ACCEPTANCE.md) | 哪些測試、人工確認、合併授權與 `main` 證據仍缺少？ |
 | 修改本包的治理文件或模板 | 本檔、[workflow.md](workflow.md)、兩份 [ADR](docs/adr/) | 是否維持單一權威、相對連結及賽前／比賽當日邊界？ |
 

@@ -28,7 +28,7 @@
 - **David Chen**：Sea 共同創始人暨蝦皮購物首席產品官（Chief Product Officer at Shopee）。負責蝦皮購物的產品策略與發展方向，並推動 Sea 集團在 AI 技術與開發者生態的投資與合作；他重視社群共同學習、實驗與建構對創新的作用。
 - **Oliver Jay**：OpenAI 國際業務主管（International Business Lead at OpenAI）。負責 OpenAI 的全球業務拓展與合作策略；他指出台灣在 Codex 採用與使用活躍度方面已進入全球前十大市場，並期待透過黑客松支持台灣開發者運用 Codex 解決真實世界問題。
 - **Thibault Sottiaux**：OpenAI Codex 負責人（Head of Codex at OpenAI）。領導 Codex 的產品開發與策略，並參與亞太開發者生態建設，專業涵蓋 AI 驅動的程式碼生成、開發者工具與開發流程優化。
-- 隊內記錄的四項規劃名稱：問題框架（problem framing）、構建品質（build quality）、思考深度（depth of thought）、Codex 應用（Codex usage）。公開定義與權重待核；見[評選規劃判準](judging-planning-rubric.md)，非官方 rubric。
+- 隊內以問題框架（problem framing）、構建品質（build quality）、思考深度（depth of thought）、Codex 應用（Codex usage）四個名稱規劃展示。這些名稱、評審公開訊號及隊內推論只供準備方向參考，不代表台灣站官方評選方式；見[評選規劃判準](judging-planning-rubric.md)。
 
 ### 本隊收到／已向主辦方確認
 
@@ -49,6 +49,7 @@
 
 - 官方資訊要求參賽者使用 Codex 完成產品與展示；因此本隊的 demo 必須能說明 Codex 在需求理解、實作、測試或修正中的實際作用。
 - 隊內規劃以四項名稱整理可展示證據；這不是官方評分宣稱。見[評選規劃判準](judging-planning-rubric.md)。
+- 隊內決定不把未知的台灣站評分比重列為待確認或產品前提；若主辦方之後直接公布，仍依更新規則記錄。
 
 ## 參考先例：新加坡站
 
@@ -63,7 +64,6 @@
 | 問題 | 目前狀態 | 收到回覆後要更新的位置 |
 |---|---|---|
 | 題目能否在正式開發前調整？ | 已確認：可調整，無須申請 | 本頁、`docs/product/`、交接包 |
-| 台灣站正式評分項目及比重為何？ | 尚未取得 | 本頁、研究行動表 |
 | 17:35 後的賽程為何？ | 已確認：17:50 第一輪、19:45 前五名第二輪、21:10 頒獎閉幕、21:45 結束 | 本頁、賽前時程、後續 demo 文件 |
 | PPT 是否必須？簡報時間、格式、頁數、設備限制及評選形式為何？ | 已確認 PPT 選用；其餘將在 Coding 開始前統一說明，仍未確認 | 本頁、後續 demo 文件 |
 | 較早官方活動時段與最新決賽時程有何差異？ | 已確認：較早 09:00–21:30 已由最新 09:00–21:45 時程取代 | 本頁、當日 runbook |

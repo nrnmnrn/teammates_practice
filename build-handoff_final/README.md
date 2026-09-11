@@ -22,6 +22,8 @@
 
 權威關係與衝突處理見 [文件權威 ADR](docs/adr/0001-document-authority.md)。GitHub parent issue 與 Ticket 只記錄執行中的狀態和證據，不能改寫上述規格。
 
+從空白 implementation repository 建立 Python／uv 環境、實作啟動入口或選擇 team/local backend 時，以[後端契約的環境與啟動章節](docs/contracts/backend-contract.md#環境與啟動契約)為唯一技術基準。
+
 ## 比賽前與比賽當日
 
 賽前只準備並驗收本文件包：不預先指定 Owner（負責該功能的人）、不建立 GitHub issue，也不建立正式 Ticket。官方 coding window 開始後，第一位認領已核可子 PRD 的人即為該子 PRD Owner；他建立 parent issue 與 Ticket，並依 [workflow.md](workflow.md) 開始工作。
