@@ -29,3 +29,7 @@
 - Never store API keys, tokens, passwords, SSH private keys, or personal correspondence in this repo.
 - Use each participant's own credentials. Shared GPU access does not imply shared credentials.
 
+## Must Read
+competition：docs/competition/README.md
+teamates：docs/operations/team-readiness.md
+workflow：docs/playbook/workflow.md, docs/operations/team-work-allocation.md
