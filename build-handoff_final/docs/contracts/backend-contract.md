@@ -35,19 +35,20 @@ uv run pytest -q --backend team --factory team_backend:create_backend
 - 公開 API 的 number 只接受內建 `int` 或 `float`，排除 `bool`、字串與 Decimal；輸出僅含 JSON 可序列化、有限的數值。內部可採 Decimal 保護邊界。
 - 每個成功的修改操作回傳新的 Snapshot。Snapshot 是防禦性副本；讀取不可改變狀態。
 - UI controller 對同一 session 的操作序列化；三個 tabs 不可各自推進或讀取不同狀態。
+- controller 只從已接受且 `playing=true` 的 Snapshot 建立有效 degradation trigger，隨即設 `playing=false`。adaptation 期間 simulation clock、Job 進度、arrival、deadline 與 dispatch 不前進；Planner／Evaluator／Critic 依 wall-clock time 自動執行。
 
 ## BackendAdapter 方法
 
 | 方法 | 回傳 | 契約 |
 | --- | --- | --- |
 | `reset(seed=42)` | Snapshot | 新 run；時間 0、FIFO、八筆初始 Job、四個初始 Skills；清除 events、series、後續 Skills、Candidate 與 usage。 |
-| `advance(dt)` | Snapshot | `dt` 為有限非負數；處理區間內全部事件；零不推進時間。 |
+| `advance(dt)` | Snapshot | `dt` 為有限非負數；處理區間內全部事件；零不推進時間。active adaptation 期間必須拒絕且不改變 Snapshot。 |
 | `inject(jobs)` | Snapshot | 驗證整批後原子加入；arrival 不早於現在；累計不超過 20。 |
 | `generate(count)` | Snapshot | 僅接受整數 1 或 4；使用本 run 的 RNG 在現在時間產生並 inject。 |
 | `set_policy(id, reason)` | Snapshot | 僅 developer mode；Skill 必須已驗證；不搶占；同 Policy 無狀態變更。 |
 | `snapshot()` | Snapshot | 無副作用。 |
 | `list_skills()` | `list[Skill]` | 回傳本 run 所有可用 Skills 與使用記錄；讀取不改變狀態。 |
-| `detect_adaptation_trigger(snapshot)` | TriggerResult | 回傳是否觸發及可見原因。 |
+| `detect_adaptation_trigger(snapshot)` | TriggerResult | 回傳是否觸發、可見原因、`workload_window` 與 `adaptation_id`；同 run／window 重複呼叫沿用 active adaptation，不產生第二輪。 |
 | `evaluate_existing_skills(context)` | `list[EvaluationResult]` | 用相同 baseline 條件評估每個已驗證 Skill。 |
 | `select_existing_skill(results)` | Skill 或 null | 僅在至少一個通過時依總 PRD 的固定順序選擇。 |
 | `propose_candidate(context, feedback)` | Candidate | 僅在既有 Skills 全部失敗且未達五版時建立。 |
@@ -57,13 +58,15 @@ uv run pytest -q --backend team --factory team_backend:create_backend
 
 team mode 的 factory 載入失敗必須明確失敗，不得 fallback 到 local。local 或 Mock 僅能以明確 mode 選擇，且 UI 必須標示來源。
 
+`TriggerResult` 至少有 `triggered`、`reason`、`run_id`、`workload_window`、`adaptation_id`。`workload_window` 是不可變物件 `{id, start, end}`：`start`、`end` 為已完成觀測區間的模擬時間，`id` 為同一 run 唯一的非空字串。同一 `run_id`、相同 `start`／`end` 必須回傳同一 window ID；simulation clock 恢復並進入新的觀測區間後才可產生新 ID。reset 清除全部 window／adaptation identity，故即使時間值相同亦屬新 run。`(run_id, workload_window.id)` 是 adaptation 唯一鍵；同鍵在 `evaluating_existing` 或 `evaluating_candidate` 時只回傳既有 ID 與目前進度，不排隊、不重跑 evaluator，也不建立新 Candidate。
+
 ## 排程資料
 
 ### JobInput 與 Job
 
 JobInput 為 `id`、`arrival`、`processing_time`、`priority`、`deadline`。ID 非空且同 run 唯一；arrival 非負；processing time 正；deadline 大於 arrival；所有數值有限。無效整批必須拒絕，不消耗 RNG，不留部分資料。
 
-Job Snapshot 另含：`status`、`started_at`、`completed_at`、`dropped_at`、`feasible`、`dispatched_policy_id`、`segment_id`。`feasible` 僅對 pending／running 有值；終態與 scheduled 為 null。後兩個欄位由 dispatch 寫入，支援已確認的 Policy／segment 證據。
+Job Snapshot 另含：`status`、`started_at`、`completed_at`、`dropped_at`、`feasible`、`dispatched_policy_id`、`segment_id`。`feasible` 僅對 pending／running 有值；終態與 scheduled 為 null。dispatch 同時寫入後兩個歸屬欄位；從未 dispatch 就 expired 時，`dispatched_policy_id` 保持 null，`segment_id` 於 expiry 寫入當時生效 segment。
 
 狀態與同時刻事件順序、Policy 排序、deadline 邊界、單 worker、不搶占，均依總 PRD。事件序號 `seq` 在同一 run 遞增。
 
@@ -75,7 +78,7 @@ Candidate 至少有 `candidate_id`、`parent_candidate_id`、`version`、`reason
 
 EvaluationResult 至少有 `subject_id`、`subject_kind`、`baseline_metrics`、`evaluated_metrics`、`evaluation_window`、`gate_passed`、`regressions`、`contract_validation`、`sandbox_status`、`failure_reason`、`critic_feedback`。它必須明示 sandbox 結果，不能混入 Live Run metrics。
 
-尚待決定：除上述最小欄位外，Skill 是否需要其他 metadata，以及其資料保存範圍。實作者不得自行把未核定 metadata 變成 UI 或 gate 的必要條件。
+本版 Skill 只保存上述最小欄位，不增加建立者、模型、成本、分類標籤或其他 metadata；實作者不得令額外欄位成為 UI、排序或 gate 的必要條件。
 
 ## Snapshot 與 Event
 
@@ -93,19 +96,19 @@ segments, events, series, adaptation, capacity
 - `metrics`：`completed`、`expired`、`throughput`、`p95_latency`；無定義值用 null。
 - `segments`：已啟用 Policy 的時間範圍與 segment metrics；不得與整局或 sandbox 指標混淆。
 - `series`：按事件時間排序的整局 metrics 歷史；同時刻可合併。
-- `adaptation`：`stage`、`message`、`adaptation_id`、`candidate_id`。
+- `adaptation`：`stage`、`message`、`adaptation_id`、`workload_window`、`candidate_id`。
 - `capacity`：`total`、固定 `limit=20`、`remaining`。
 
 `adaptation.stage` 至少支援 `idle`、`evaluating_existing`、`existing_skill_reused`、`evaluating_candidate`、`registered`、`failed`。stage 只描述已發生或正在執行的流程；UI 不可自行推測下一狀態。
 
-Event 至少有 `seq`、`time`、`type`、`job_id`、`policy_id`、`candidate_id`、`message`。必要類型為排程事件 `arrived`、`started`、`completed`、`expired`，以及 `existing_skill_reused`、`candidate_proposed`、`candidate_evaluated`、`skill_registered`、`policy_activated`、`adaptation_failed`。無關 ID 用 null。
+Event 至少有 `seq`、`time`、`type`、`job_id`、`policy_id`、`adaptation_id`、`candidate_id`、`message`。必要類型為排程事件 `arrived`、`started`、`completed`、`expired`，以及 `adaptation_triggered`、`existing_skill_reused`、`candidate_proposed`、`candidate_evaluated`、`skill_registered`、`policy_activated`、`adaptation_failed`、`adaptation_error`。無關 ID 用 null。
 
-`policy_activated`、Job 的 Policy／segment 記錄與 segment metrics 是既定產品需求。是否另為每種 adapter 失敗建立領域 Event，以及錯誤後提供何種重試提示與時機，尚待決定；目前已確認的行為只有停止 adaptation、保留最後有效 Snapshot 並顯示錯誤。
+每個 adaptation Event 必須以 `adaptation_id` 串成可追溯 progression。外部 adapter 失敗統一記錄 `adaptation_error` 與失敗 stage／原因，不為每個 provider 建立不同 Event 類型。錯誤後保持暫停並顯示手動 retry；不得自動 retry 或自動切換 Mock。
 
 ## Metrics
 
 - Live Run：整局 `completed`、`expired`、`throughput`、P95 completion latency。
-- Policy segment：每個已啟用 Policy 的區段結果。
+- Policy segment：已 dispatch Job 的完成、expired 與 latency 全部歸於 dispatch 時寫入的 `segment_id`；跨越 Policy 切換才結束仍屬原 dispatch segment。從未 dispatch 就 expired 的 Job 歸於 expiry 時生效的 segment，不產生 latency。
 - Existing Skill evaluation：相同 baseline 下各既有 Skill 的 sandbox 結果。
 - Candidate evaluation：各 Candidate 版本的 sandbox 結果。
 
@@ -134,8 +137,8 @@ local 與 team adapter 必須以 factory 的 `initial_jobs` 建立下列獨立�
 
 ## Session 與錯誤
 
-UI envelope 另持有 `session_generation`、`revision`、`backend_source`、`playing`、`speed`、`error`。reset 增加 generation 並換 run ID；過時 generation、run ID 或 revision 的結果不得套用到任何 tab。
+UI envelope 另持有 `session_generation`、`revision`、`backend_source`、`playing`、`speed`、`error`。有效 trigger 把 `playing` 設為 false；成功 `existing_skill_reused` 或 `policy_activated` 後設回 true。reset 增加 generation 並換 run ID；過時 generation、run ID 或 revision 的結果不得套用到任何 tab。
 
-輸入錯誤以 `AdapterValidationError(ValueError)` 回報，並保證 Job、RNG、events、時間不變。操作或讀取失敗以 `AdapterOperationError(RuntimeError)` 回報，含 `state_uncertain: bool`；無法證明未修改時預設為 true。controller 必須暫停、保留最後有效 Snapshot、顯示錯誤並提供重新取得狀態或 reset。狀態不明前不得自動重送修改操作。不得把 stack trace 當使用者文案。
+輸入錯誤以 `AdapterValidationError(ValueError)` 回報，並保證 Job、RNG、events、時間不變。操作或讀取失敗以 `AdapterOperationError(RuntimeError)` 回報，含 `state_uncertain: bool`；無法證明未修改時預設為 true。controller 必須保持暫停、保留最後有效 Snapshot、記錄 `adaptation_error`，並顯示失敗 stage、可讀原因及唯一安全動作。`state_uncertain=false` 時，使用者可手動從最後完成的 adaptation stage 重試；`state_uncertain=true` 時只提供重新取得狀態或 reset。任何情況皆不得自動重送修改操作。不得把 stack trace 當使用者文案。
 
-外部 Planner、Evaluator、Critic 或 LLM timeout／schema／服務錯誤時，adaptation 進入失敗狀態。不得默默改用 Mock。
+外部 Planner、Evaluator、Critic 或 LLM timeout／schema／服務錯誤時，adaptation 進入失敗狀態並保持暫停。手動 retry 沿用原 `adaptation_id`，不得重複已完成且有副作用的 stage；成功完成後才恢復播放。不得默默改用 Mock。

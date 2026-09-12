@@ -30,9 +30,9 @@
 - 子 PRD 完成須包含整體功能驗收、測試、AI review、Owner 自查、另一位成員確認、正式 PR merge 及 `main` 整合驗收。另一位確認者不預先指定。
 - AO-001 至 AO-010 留在 `build-handoff_2/` 作參考，不搬入 final。
 
-## 待產品決定
+## 已核定產品決策
 
-重複 adaptation trigger、跨 Policy Job 的 segment metrics 歸屬、額外 Skill metadata，以及外部錯誤 event／重試 UI，整理於 [產品決策簡報](PRODUCT-DECISION-BRIEF.md)，待咏宸逐題決定。該簡報只提出選項與影響，不是產品權威；決定寫回總 PRD、相關子 PRD、後端契約與驗收矩陣後，才可作為實作基準。
+咏宸已於 2026-09-12 核定[產品決策簡報](PRODUCT-DECISION-BRIEF.md)：指標惡化即暫停 simulation clock，由 AI 自動完成 adaptation；同一 run、同一 workload window 不重開另一輪；成功重用或啟用 Skill 後自動恢復，五版失敗或外部錯誤時保持暫停，由使用者手動 retry、resync 或 reset。跨 Policy Job 的 metrics 依 dispatch 時的 Policy segment 歸屬；本版不增加 Skill metadata。90 秒短展示保留，另以不固定時長的 progression run 證明多輪自動演進；不得將其寫成主辦方簡報時間。
 
 ## 子 PRD 候選
 
