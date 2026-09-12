@@ -14,8 +14,10 @@
 
 ## 執行原則
 
-- 每次 session 只完成一張已準備好的 Ticket；開始前重讀完整子 PRD、目前 Ticket、直接依賴證據與最新 `main`。
-- 依賴方向固定寫為「Consumer depends on Provider」：使用成果的一方依賴提供成果的一方。除非 main branch 負責人明示例外，下游工作等 Provider 成果已 merge 並在 `main` 驗證後才開始。
+- 開始工作前，先理解使用者的目標、範圍、限制與完成標準；再檢查並選用與任務直接相關的 skill。依所選 skill 決定須讀取的文件、執行步驟與驗證方式。僅使用必要 skill，不得以 skill 取代或擴張使用者需求；若無合適 skill，依本文件及 repository 既有模式執行。
+- 目前 branch 非 `main`，或本次已認領／承接任何子 PRD 或 Ticket 時，開始前必須完整讀 [workflow.md](workflow.md)。僅管理 `main` 且未承接子 PRD／Ticket 者不強制。
+- 每次子 PRD／Ticket session 只完成一張已準備好的 Ticket；開始檢查包含完整子 PRD、目前 Ticket、[workflow.md](workflow.md)、[依賴索引](sub-PRDs/DEPENDENCIES.md)的開始條件、直接 Provider 證據與最新 `main`。
+- 依賴方向固定寫為「Consumer depends on Provider」：使用成果的一方依賴提供成果的一方。Contract 已核定時，下游可用子 PRD 指定的 deterministic adapter／fixture 平行準備；正式整合與 closeout 一律等 Provider 成果已 merge 並在 `main` 驗證。
 - 一份子 PRD 對應一條 branch 和一個 Draft PR；每張完成的 Ticket 留下清楚 commit、測試與 AI review 證據。
 - 子 PRD 全部 Ticket 完成後，還要做整體功能驗收、完整測試、Owner 自查、另一位成員確認、正式 PR merge 與 `main` 整合驗收，才能關閉 parent issue。
 - 同一 blocker 超過 15 分鐘，或完成兩次有證據的嘗試仍無法前進時，標示 Blocked 並回報；不要自行改寫需求或介面。

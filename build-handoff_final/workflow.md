@@ -10,7 +10,7 @@
 - 官方 coding window 已開始。賽前不預排 Owner，不建立 GitHub issue 或 Ticket。
 - 認領人即為 Owner，建立該子 PRD 的 GitHub parent issue，再依核可子 PRD 建立 2 至 3 張 Ticket；使用 [parent issue 模板](templates/parent-issue.md) 與 [Ticket 模板](templates/ticket.md)。
 - Owner 由最新 `main` 建立此子 PRD 唯一的 branch 與 Draft PR，並把 branch、PR 與規格版本連回 parent issue。
-- 已確認直接依賴。依賴一律寫成「Consumer depends on Provider」。Provider 的成果通常必須已 merge 並在 `main` 驗證；例外須由 main branch 負責人明示並記在 parent issue。
+- 已確認直接依賴。依賴一律寫成「Consumer depends on Provider」。Contract 已核定時，Consumer 可依子 PRD 指定的 deterministic adapter／fixture 平行開發。正式整合與 closeout 一律等所有直接 Provider 已 merge 並在 `main` 驗證，不得例外。
 
 main branch 負責人是人類整合與跨功能決策角色；AI 不得自行擔任、核可或 merge。
 
@@ -29,9 +29,24 @@ main branch 負責人是人類整合與跨功能決策角色；AI 不得自行�
 
 ## 3. 阻塞與變更
 
-同一 blocker 超過 15 分鐘，或已完成兩次有證據的嘗試仍不能前進時，在 parent issue 標記 `Blocked`，記錄症狀、嘗試、證據與需要的決定，並通知 main branch 負責人。
+一般技術 blocker：同一問題超過 15 分鐘，或已完成兩次有證據的嘗試仍不能前進時，在 parent issue 標記 `Blocked`，記錄症狀、嘗試、證據與需要的決定，並通知 main branch 負責人。
 
-規格有衝突、題意不清或跨功能介面不一致時，停止受影響工作。原範圍確有遺漏時可提案補 Ticket，但必須仍符合 [sub-PRD 撰寫規則](sub-prd-authoring.md) 的 Ticket 數量閘門；改變交付結果、範圍、驗收或直接依賴，必須先更新並核可子 PRD，不能只改 issue。
+文件矛盾、題意不清或跨功能介面不一致：立即停止受影響工作，不等 15 分鐘。在畫面輸出下列 `BLOCKED` 區塊，並連回 parent issue：
+
+```text
+BLOCKED
+子 PRD：<名稱／路徑>
+Ticket：<連結或編號>
+文件與段落：<路徑與段落>
+解讀 A：<內容>
+解讀 B：<內容>
+影響：<停止的工作、介面或驗收>
+請 main branch 負責人決定：<一個明確問題>
+```
+
+main branch 負責人須在現場查看 Owner 電腦後，由人類作出決定。先更新權威文件；若決定不改規格，至少把決定記入 parent issue。然後重驗 Ticket 開始條件，才可續工。
+
+原範圍確有遺漏時可提案補 Ticket，但必須仍符合 [sub-PRD 撰寫規則](sub-prd-authoring.md) 的 Ticket 數量閘門；改變交付結果、範圍、驗收或直接依賴，必須先更新並核可子 PRD，不能只改 issue。
 
 ## 4. 子 PRD 完成、merge 與結案
 
